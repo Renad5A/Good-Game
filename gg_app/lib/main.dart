@@ -1,67 +1,61 @@
 import 'package:flutter/material.dart';
-import 'search_page.dart';
-import 'add_activity_page.dart';
+
+// routes
+import 'core/app_routes.dart';
+
+// pages
+import 'pages/login_page.dart';
+import 'pages/register_page.dart';
+import 'pages/forgot_password_page.dart';
+import 'pages/otp_page.dart';
+import 'pages/home_page.dart';
+import 'pages/groups_page.dart';
+import 'pages/group_details_page.dart';
+import 'pages/search_page.dart';
+import 'pages/add_activity_page.dart';
+import 'pages/profile_page.dart';
+import 'pages/notifications_page.dart';
+import 'pages/chat_page.dart';
+import 'pages/settings_page.dart';
+import 'pages/skill_level_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const GGApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class GGApp extends StatelessWidget {
+  const GGApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Riyadh Sports Hub',
-      theme: ThemeData(
-        primaryColor: const Color(0xFF1FAF7A),
-        scaffoldBackgroundColor: const Color(0xFFF5F7F9),
-      ),
-      home: const MainNavigation(),
-    );
-  }
-}
+      title: 'GG App',
 
-class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+      // أول صفحة تفتح
+      initialRoute: AppRoutes.login,
 
-  @override
-  State<MainNavigation> createState() => _MainNavigationState();
-}
-
-class _MainNavigationState extends State<MainNavigation> {
-  int _currentIndex = 0;
-
-  final pages = [
-    const SearchPage(),
-    const AddActivityPage(),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: const Color(0xFF1FAF7A),
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+      // ربط كل الصفحات
+      routes: {
+        AppRoutes.login: (context) => const LoginPage(),
+        AppRoutes.register: (context) => const RegisterPage(),
+        AppRoutes.forgotPassword: (context) => const ForgotPasswordPage(),
+        AppRoutes.otp: (context) => const OtpPage(),
+        AppRoutes.home: (context) => const HomePage(),
+        AppRoutes.groups: (context) => const GroupsPage(),
+        AppRoutes.groupDetails: (context) {
+          final group =
+              ModalRoute.of(context)!.settings.arguments as Group;
+          return GroupDetailsPage(group: group);
         },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: "Search",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle),
-            label: "Create",
-          ),
-        ],
-      ),
+        AppRoutes.search: (context) => const SearchPage(),
+        AppRoutes.addActivity: (context) => const AddActivityPage(),
+        AppRoutes.profile: (context) => const ProfilePage(),
+        AppRoutes.notifications: (context) => const NotificationsPage(),
+        AppRoutes.chat: (context) => const ChatPage(),
+        AppRoutes.settings: (context) => const SettingsPage(),
+        AppRoutes.skillLevel: (context) => const SkillLevelPage(),
+      },
     );
   }
 }
-
