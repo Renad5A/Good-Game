@@ -18,6 +18,7 @@ import 'pages/notifications_page.dart';
 import 'pages/chat_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/skill_level_page.dart';
+import 'pages/admin_panel_page.dart';
 
 void main() {
   runApp(const GGApp());
@@ -55,6 +56,7 @@ class GGApp extends StatelessWidget {
         AppRoutes.chat: (context) => const ChatPage(),
         AppRoutes.settings: (context) => const SettingsPage(),
         AppRoutes.skillLevel: (context) => const SkillLevelPage(),
+        '/admin-panel': (context) => const AdminPanelPage(),
       },
     );
   }
