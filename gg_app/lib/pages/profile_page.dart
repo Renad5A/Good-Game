@@ -1,25 +1,36 @@
 import 'package:flutter/material.dart';
 import 'skill_level_page.dart';
+import 'edit_profile_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
+  // تعريف لوحة الألوان الفخمة
+  static const Color bgDark = Color(0xFF0F1214);      // الخلفية العميق
+  static const Color surfaceDark = Color(0xFF1A1F23); // الحاويات والبطاقات
+  static const Color accentGold = Color(0xFFD4AF37);  // الذهبي للأيقونات والتفاعل
+  static const Color textMain = Color(0xFFE0E0E0);    // النص الأساسي
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 4, 
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF1B9B7E),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.group_outlined), label: 'Groups'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: 'Create'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
+      backgroundColor: bgDark,
+      bottomNavigationBar: Theme(
+        data: ThemeData(canvasColor: surfaceDark),
+        child: BottomNavigationBar(
+          currentIndex: 4,
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: accentGold,
+          unselectedItemColor: Colors.white38,
+          showUnselectedLabels: true,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.group_outlined), label: 'Groups'),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+            BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: 'Create'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -28,10 +39,17 @@ class ProfilePage extends StatelessWidget {
               alignment: Alignment.center,
               clipBehavior: Clip.none,
               children: [
+                // الغطاء العلوي بتدرج ذهبي خفيف
                 Container(
                   height: 160,
                   width: double.infinity,
-                  color: const Color(0xFF1B9B7E), 
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF2C2C2C), surfaceDark],
+                    ),
+                  ),
                   child: SafeArea(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -40,11 +58,11 @@ class ProfilePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.arrow_back, color: Colors.white),
+                            icon: const Icon(Icons.arrow_back, color: textMain),
                             onPressed: () => Navigator.pop(context),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                            icon: const Icon(Icons.settings_outlined, color: textMain),
                             onPressed: () {},
                           ),
                         ],
@@ -52,35 +70,43 @@ class ProfilePage extends StatelessWidget {
                     ),
                   ),
                 ),
+                // الصورة الشخصية مع إطار ذهبي
                 Positioned(
                   top: 110,
                   child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.white,
+                    radius: 52,
+                    backgroundColor: accentGold,
                     child: CircleAvatar(
-                      radius: 46,
-                      backgroundColor: Colors.green[400],
-                      child: const Text('A', style: TextStyle(fontSize: 40, color: Colors.white)),
+                      radius: 48,
+                      backgroundColor: surfaceDark,
+                      child: const Text('A', 
+                        style: TextStyle(fontSize: 40, color: accentGold, fontWeight: FontWeight.bold)
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 60),
+            const SizedBox(height: 65),
 
-            const Text('Ahmed', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const Text('Member', style: TextStyle(color: Colors.grey)),
+            const Text('Ahmed', 
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1)
+            ),
+            const Text('Member', style: TextStyle(color: accentGold, fontWeight: FontWeight.w500)),
+            
             const Padding(
-              padding: EdgeInsets.all(15.0),
+              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               child: Text(
                 'Sports enthusiast | Always looking for new adventures. Love meeting new people and staying active!',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.black54),
+                style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
               ),
             ),
 
+            const SizedBox(height: 10),
             _buildActionButtons(context),
             
+            const SizedBox(height: 25),
             _buildSectionHeader('Favorite Activities'),
             _buildActivityChips(),
 
@@ -91,7 +117,7 @@ class ProfilePage extends StatelessWidget {
             _buildSectionHeader('Created Groups (1)'),
             _buildGroupCard('Evening Running', 'by Ahmed (You)', '2/10', 'Running'),
             
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
           ],
         ),
       ),
@@ -99,12 +125,13 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context) {
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      alignment: WrapAlignment.center,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _customButton(Icons.edit_outlined, 'Edit Profile', () {}),
+        _customButton(Icons.edit_outlined, 'Edit Profile', () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfilePage()));
+        }),
+        const SizedBox(width: 12),
         _customButton(Icons.emoji_events_outlined, 'Skill Level', () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const SkillLevelPage()));
         }),
@@ -113,35 +140,40 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _customButton(IconData icon, String label, VoidCallback onTap) {
-    return OutlinedButton.icon(
+    return ElevatedButton.icon(
       onPressed: onTap,
-      icon: Icon(icon, size: 18, color: Colors.black87),
-      label: Text(label, style: const TextStyle(color: Colors.black87)),
-      style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: Colors.grey),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      icon: Icon(icon, size: 18, color: Colors.black),
+      label: Text(label, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: accentGold,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 0,
       ),
     );
   }
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.fromLTRB(20, 25, 20, 12),
       child: Align(
         alignment: Alignment.centerLeft, 
-        child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
+        child: Text(title, 
+          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: accentGold, letterSpacing: 0.5)
+        )
       ),
     );
   }
 
   Widget _buildActivityChips() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Wrap(
-        spacing: 8,
+        spacing: 10,
+        runSpacing: 10,
         children: [
-          _activityChip('Football • intermediate'),
-          _activityChip('Running • beginner'),
+          _activityChip('Football • Intermediate'),
+          _activityChip('Running • Beginner'),
           _activityChip('Hiking'),
         ],
       ),
@@ -149,25 +181,35 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _activityChip(String label) {
-    return Chip(
-      label: Text(label, style: const TextStyle(color: Color(0xFF1B9B7E), fontSize: 12)),
-      backgroundColor: const Color(0xFFE8F5E9),
-      side: BorderSide.none,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: surfaceDark,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: accentGold.withOpacity(0.3)),
+      ),
+      child: Text(label, style: const TextStyle(color: textMain, fontSize: 12)),
     );
   }
 
   Widget _buildGroupCard(String name, String creator, String count, String tag) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      decoration: BoxDecoration(
+        color: surfaceDark,
+        borderRadius: BorderRadius.circular(15),
+      ),
       child: ListTile(
-        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(creator),
-        trailing: Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 10,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+        title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        subtitle: Text(creator, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-             _activityChip(tag),
-             Text(count, style: const TextStyle(color: Color(0xFF1B9B7E), fontWeight: FontWeight.bold)),
+            Text(tag, style: const TextStyle(color: accentGold, fontSize: 12, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 4),
+            Text(count, style: const TextStyle(color: Colors.white70, fontSize: 12)),
           ],
         ),
       ),
