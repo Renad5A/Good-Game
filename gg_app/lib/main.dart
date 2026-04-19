@@ -33,10 +33,8 @@ class GGApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'GG App',
 
-      // أول صفحة تفتح
       initialRoute: AppRoutes.login,
 
-      // ربط كل الصفحات
       routes: {
         AppRoutes.login: (context) => const LoginPage(),
         AppRoutes.register: (context) => const RegisterPage(),
@@ -45,8 +43,7 @@ class GGApp extends StatelessWidget {
         AppRoutes.home: (context) => const HomePage(),
         AppRoutes.groups: (context) => const GroupsPage(),
         AppRoutes.groupDetails: (context) {
-          final group =
-              ModalRoute.of(context)!.settings.arguments as Group;
+          final group = ModalRoute.of(context)!.settings.arguments;
           return GroupDetailsPage(group: group);
         },
         AppRoutes.search: (context) => const SearchPage(),

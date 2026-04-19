@@ -1,8 +1,8 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../core/app_routes.dart';
 
 class GroupDetailsPage extends StatefulWidget {
-  final dynamic group; // <-- IMPORTANT: accepts Group object OR Map
+  final dynamic group;
 
   const GroupDetailsPage({super.key, required this.group});
 
@@ -14,17 +14,19 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   late dynamic _g;
   bool _isJoined = false;
   int _membersCount = 0;
+  late List<String> _members;
+  late List<String> _joinRequests;
 
   @override
   void initState() {
     super.initState();
     _g = widget.group;
-
     _isJoined = _readBool("isJoined", fallback: false);
-    _membersCount = _readInt("membersCount", fallback: _readMembers().length);
+    _members = _readMembers();
+    _joinRequests = _readJoinRequests();
+    _membersCount = _readInt("membersCount", fallback: _members.length);
   }
 
-  // ---------- Safe readers (Map or Group object) ----------
   bool _readBool(String key, {required bool fallback}) {
     try {
       if (_g is Map) return (_g[key] == true);
@@ -34,6 +36,15 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     return fallback;
   }
 
+  bool _readIsOwner() {
+    try {
+      if (_g is Map) {
+        return _g["isOwner"] == true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
   int _readInt(String key, {required int fallback}) {
     try {
       if (_g is Map) {
@@ -41,8 +52,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         if (v is int) return v;
       } else {
         final d = _g as dynamic;
-        if (key == "membersCount" && d.membersCount is int) return d.membersCount as int;
-        if (key == "maxParticipants" && d.maxParticipants is int) return d.maxParticipants as int;
+        if (key == "membersCount" && d.membersCount is int) {
+          return d.membersCount as int;
+        }
+        if (key == "maxParticipants" && d.maxParticipants is int) {
+          return d.maxParticipants as int;
+        }
       }
     } catch (_) {}
     return fallback;
@@ -83,10 +98,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       if (_g is Map) {
         final v = _g["members"];
         if (v is List) {
-          return v.map((e) {
-            if (e is Map && e["name"] != null) return e["name"].toString();
-            return e.toString();
-          }).toList();
+          return v.map((e) => e.toString()).toList();
         }
       } else {
         final d = _g as dynamic;
@@ -99,15 +111,43 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     return [];
   }
 
-  // ---------- UI helpers ----------
-  Color _riskColor(String risk) {
-    switch (risk.toLowerCase()) {
-      case "high":
+  List<String> _readJoinRequests() {
+    try {
+      if (_g is Map) {
+        final v = _g["joinRequests"];
+        if (v is List) {
+          return v.map((e) => e.toString()).toList();
+        }
+      } else {
+        final d = _g as dynamic;
+        final v = d.joinRequests;
+        if (v is List) {
+          return v.map((e) => e.toString()).toList();
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  Color _levelColor(String level) {
+    switch (level.toLowerCase()) {
+      case "advanced 🔥":
         return const Color(0xFFE53935);
-      case "medium":
+      case "intermediate ⚡️":
         return const Color(0xFFF9A825);
       default:
         return const Color(0xFF2E7D32);
+    }
+  }
+
+  IconData _levelIcon(String level) {
+    switch (level.toLowerCase()) {
+      case "advanced 🔥":
+        return Icons.local_fire_department_rounded;
+      case "intermediate ⚡️":
+        return Icons.flash_on_rounded;
+      default:
+        return Icons.eco_rounded;
     }
   }
 
@@ -117,7 +157,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     required String location,
     required String date,
     required String time,
-    required String risk,
+    required String level,
     required String desc,
   }) {
     return "📌 Event Details\n"
@@ -126,32 +166,34 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         "• $location\n"
         "• $date at $time\n\n"
         "✅ Notes:\n$desc\n\n"
-        "⚠ Risk Level: $risk";
+        "⚠ Level: $level";
   }
 
   void _openReportSheet() {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) {
         return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 48,
-                height: 5,
+                width: 52,
+                height: 6,
                 decoration: BoxDecoration(
                   color: Colors.black12,
                   borderRadius: BorderRadius.circular(99),
                 ),
               ),
-              const SizedBox(height: 12),
-              const Text("Report",
-                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
+              const SizedBox(height: 14),
+              const Text(
+                "Report",
+                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
+              ),
               const SizedBox(height: 14),
               _reportTile("Spam / Fake group"),
               _reportTile("Inappropriate content"),
@@ -175,6 +217,37 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
           SnackBar(content: Text("Report submitted: $title")),
         );
       },
+    );
+  }
+
+  void _acceptRequest(String user) {
+    final maxParticipants = _readInt("maxParticipants", fallback: 0);
+
+    if (maxParticipants > 0 && _membersCount >= maxParticipants) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Group is full.")),
+      );
+      return;
+    }
+
+    setState(() {
+      _joinRequests.remove(user);
+      _members.add(user);
+      _membersCount = _members.length;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("$user accepted ✅")),
+    );
+  }
+
+  void _rejectRequest(String user) {
+    setState(() {
+      _joinRequests.remove(user);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("$user rejected ❌")),
     );
   }
 
@@ -204,273 +277,446 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    const Color pageBg = Color(0xFFF3F4F6);
+    const Color darkBlue = Color(0xFF213F73);
+    const Color midBlue = Color(0xFF86B3EE);
+    const Color lightBlue = Color(0xFFAED3EC);
+
     final name = _readString("groupName", fallback: "Group");
     final activity = _readString("activityType", fallback: "Activity");
     final location = _readString("location", fallback: "-");
     final date = _readString("date", fallback: "-");
     final time = _readString("time", fallback: "-");
     final creator = _readString("creatorName", fallback: "-");
-    final risk = _readString("riskLevel", fallback: "Low");
+    final level = _readString("riskLevel", fallback: "Beginner 🌱");
     final desc = _readString(
       "description",
       fallback: "Please arrive on time and be respectful to all members.",
     );
-
     final maxParticipants = _readInt("maxParticipants", fallback: 0);
-    final members = _readMembers();
-
-    final riskColor = _riskColor(risk);
+    final isOwner = _readIsOwner();
+    final levelColor = _levelColor(level);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FB),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: const Color(0xFF111827),
-        title: const Text("Group Details",
-            style: TextStyle(fontWeight: FontWeight.w900)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            tooltip: "Report",
-            onPressed: _openReportSheet,
-            icon: const Icon(Icons.flag_outlined),
-          ),
-          const SizedBox(width: 6),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
-        children: [
-          _Card(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: pageBg,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
               children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 22,
-                    color: Color(0xFF111827),
+                Container(
+                  height: 300,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(56),
+                      bottomRight: Radius.circular(56),
+                    ),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [midBlue, lightBlue],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    _Pill(
-                      text: activity,
-                      bg: const Color(0xFFE6FBF2),
-                      fg: const Color(0xFF12B981),
-                    ),
-                    _Pill(
-                      text: "Risk: $risk",
-                      bg: riskColor.withOpacity(0.12),
-                      fg: riskColor,
-                      icon: Icons.warning_rounded,
-                    ),
-                    _Pill(
-                      text: "$_membersCount/$maxParticipants",
-                      bg: const Color(0xFFE8F7FF),
-                      fg: const Color(0xFF0288D1),
-                      icon: Icons.groups_2_outlined,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                _Info(icon: Icons.location_on_outlined, text: location),
-                const SizedBox(height: 8),
-                _Info(icon: Icons.calendar_month_outlined, text: date),
-                const SizedBox(height: 8),
-                _Info(icon: Icons.access_time_rounded, text: time),
-                const SizedBox(height: 10),
-                const Divider(color: Color(0xFFE8EEF5)),
-                const SizedBox(height: 10),
+                Expanded(child: Container(color: pageBg)),
+              ],
+            ),
+            ListView(
+              padding: const EdgeInsets.fromLTRB(26, 24, 26, 28),
+              children: [
                 Row(
                   children: [
-                    const Icon(Icons.person_outline_rounded,
-                        size: 18, color: Colors.black45),
-                    const SizedBox(width: 8),
-                    Expanded(
+                    _topIconButton(
+                      icon: Icons.arrow_back,
+                      onTap: () => Navigator.pop(context),
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(
                       child: Text(
-                        "Created by $creator",
-                        style: const TextStyle(
-                          color: Colors.black54,
+                        "Group Details",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 32,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
-                    TextButton.icon(
-                      onPressed: () =>
-                          Navigator.pushNamed(context, AppRoutes.profile),
-                      icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                      label: const Text("View Creator Profile"),
+                    _topIconButton(
+                      icon: Icons.flag_outlined,
+                      onTap: _openReportSheet,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 26),
+                _glassCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 28,
+                          color: darkBlue,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: [
+                          _Pill(
+                            text: activity,
+                            bg: const Color(0xFFDDEBFB),
+                            fg: darkBlue,
+                          ),
+                          _Pill(
+                            text: "Level: $level",
+                            bg: levelColor.withOpacity(0.15),
+                            fg: levelColor,
+                            icon: _levelIcon(level),
+                          ),
+                          _Pill(
+                            text: "$_membersCount/$maxParticipants",
+                            bg: const Color(0xFFEAF4FF),
+                            fg: darkBlue,
+                            icon: Icons.groups_2_outlined,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      _infoRow(Icons.location_on_outlined, location),
+                      const SizedBox(height: 10),
+                      _infoRow(Icons.calendar_month_outlined, date),
+                      const SizedBox(height: 10),
+                      _infoRow(Icons.access_time_rounded, time),
+                      const SizedBox(height: 14),
+                      const Divider(color: Color(0xFFE3E8EF)),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.person_outline_rounded,
+                            size: 18,
+                            color: Colors.black45,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              "Created by $creator",
+                              style: const TextStyle(
+                                color: darkBlue,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: () =>
+                                Navigator.pushNamed(context, AppRoutes.profile),
+                            icon: const Icon(
+                              Icons.open_in_new_rounded,
+                              size: 18,
+                            ),
+                            label: const Text("View Creator Profile"),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 18),
+                _glassCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Event Message",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 18,
+                          color: darkBlue,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        _fullEventMessage(
+                          name: name,
+                          activity: activity,
+                          location: location,
+                          date: date,
+                          time: time,
+                          level: level,
+                          desc: desc,
+                        ),
+                        style: const TextStyle(
+                          height: 1.45,
+                          color: darkBlue,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isOwner) ...[
+                  const SizedBox(height: 18),
+                  _glassCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Join Requests",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 18,
+                            color: darkBlue,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        if (_joinRequests.isEmpty)
+                          const Text(
+                            "No pending requests.",
+                            style: TextStyle(
+                              color: darkBlue,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )
+                        else
+                          Column(
+                            children: _joinRequests.map((user) {
+                              final initial = user.isNotEmpty
+                                  ? user.trim()[0].toUpperCase()
+                                  : "?";
+
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF6FAFF),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: const Color(0xFFDDEBFB),
+                                      child: Text(
+                                        initial,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                          color: darkBlue,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        user,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15,
+                                          color: darkBlue,
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => _rejectRequest(user),
+                                      child: const Text("Reject"),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    ElevatedButton(
+                                      onPressed: () => _acceptRequest(user),
+                                      style: ElevatedButton.styleFrom(
+                                        elevation: 0,
+                                        backgroundColor: const Color(0xFF86B3EE),
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                      ),
+                                      child: const Text("Accept"),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 18),
+                _glassCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Members",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 18,
+                          color: darkBlue,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      if (_members.isEmpty)
+                        const Text(
+                          "No members yet.",
+                          style: TextStyle(
+                            color: darkBlue,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      else
+                        Column(
+                          children: _members.map((memberName) {
+                            final initial = memberName.isNotEmpty
+                                ? memberName.trim()[0].toUpperCase()
+                                : "?";
+
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: CircleAvatar(
+                                backgroundColor: const Color(0xFFDDEBFB),
+                                child: Text(
+                                  initial,
+                                  style: const TextStyle(
+                                    color: darkBlue,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                              title: Text(
+                                memberName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: darkBlue,
+                                ),
+                              ),
+                              subtitle: const Text(
+                                "Member",
+                                style: TextStyle(fontWeight: FontWeight.w500),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _toggleJoin,
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: _isJoined
+                              ? const Color(0xFFDDEBFB)
+                              : const Color(0xFF86B3EE),
+                          foregroundColor:
+                              _isJoined ? darkBlue : Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                          ),
+                        ),
+                        child: Text(_isJoined ? "Joined (Tap to Leave)" : "Join"),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.chat,
+                            arguments: {
+                              "chatType": "group",
+                              "groupName": name,
+                            },
+                          );
+                        },
+                        icon: const Icon(Icons.forum_outlined),
+                        label: const Text("Group Chat"),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: darkBlue,
+                          side: const BorderSide(color: Color(0xFFBFD5F4)),
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 14),
-          _Card(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("Event Message",
-                    style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 16,
-                        color: Color(0xFF111827))),
-                const SizedBox(height: 10),
-                Text(
-                  _fullEventMessage(
-                    name: name,
-                    activity: activity,
-                    location: location,
-                    date: date,
-                    time: time,
-                    risk: risk,
-                    desc: desc,
-                  ),
-                  style: const TextStyle(
-                    height: 1.35,
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          _Card(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("Members",
-                    style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 16,
-                        color: Color(0xFF111827))),
-                const SizedBox(height: 12),
-                if (members.isEmpty)
-                  const Text("No members yet (mock).",
-                      style: TextStyle(
-                          color: Colors.black54, fontWeight: FontWeight.w700))
-                else
-                  Column(
-                    children: members.map((name) {
-                      final initial =
-                          name.isNotEmpty ? name.trim()[0].toUpperCase() : "?";
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: CircleAvatar(
-                          backgroundColor: const Color(0xFFE6FBF2),
-                          child: Text(
-                            initial,
-                            style: const TextStyle(
-                              color: Color(0xFF12B981),
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                        title: Text(name,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w800)),
-                        subtitle: const Text("Member",
-                            style: TextStyle(fontWeight: FontWeight.w600)),
-                      );
-                    }).toList(),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: _toggleJoin,
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    backgroundColor: _isJoined
-                        ? const Color(0xFFE8EEF5)
-                        : const Color(0xFF12B981),
-                    foregroundColor:
-                        _isJoined ? const Color(0xFF111827) : Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    textStyle: const TextStyle(fontWeight: FontWeight.w900),
-                  ),
-                  child: Text(_isJoined ? "Joined (Tap to Leave)" : "Join"),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () =>
-                      Navigator.pushNamed(context, AppRoutes.chat),
-                  icon: const Icon(Icons.chat_bubble_outline_rounded),
-                  label: const Text("Message Creator"),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF111827),
-                    side: const BorderSide(color: Color(0xFFE8EEF5)),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    textStyle: const TextStyle(fontWeight: FontWeight.w900),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
-}
 
-class _Card extends StatelessWidget {
-  final Widget child;
-  const _Card({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _glassCard({required Widget child}) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE8EEF5)),
+        color: Colors.white.withOpacity(0.88),
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 16,
+            offset: Offset(0, 8),
+          ),
+        ],
       ),
       child: child,
     );
   }
-}
 
-class _Info extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  const _Info({required this.icon, required this.text});
+  Widget _topIconButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 58,
+        height: 58,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.22),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 26,
+        ),
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _infoRow(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, color: Colors.black38, size: 22),
+        Icon(icon, color: const Color(0xFF213F73), size: 22),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             text,
             style: const TextStyle(
-              color: Colors.black54,
-              fontWeight: FontWeight.w700,
+              color: Color(0xFF213F73),
+              fontWeight: FontWeight.w600,
               fontSize: 16,
             ),
           ),
@@ -496,10 +742,10 @@ class _Pill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -508,8 +754,10 @@ class _Pill extends StatelessWidget {
             Icon(icon, size: 16, color: fg),
             const SizedBox(width: 6),
           ],
-          Text(text,
-              style: TextStyle(color: fg, fontWeight: FontWeight.w900)),
+          Text(
+            text,
+            style: TextStyle(color: fg, fontWeight: FontWeight.w700),
+          ),
         ],
       ),
     );

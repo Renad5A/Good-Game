@@ -8,8 +8,11 @@ class Group {
   final String time;
   final String creator;
   final String activity;
-  final String members;
-  final String risk; // Low / Medium / High
+  final List<String> members;
+  final int maxParticipants;
+  final String level;
+  final String description;
+  final List<String> joinRequests;
 
   const Group({
     required this.name,
@@ -19,7 +22,10 @@ class Group {
     required this.creator,
     required this.activity,
     required this.members,
-    required this.risk,
+    required this.maxParticipants,
+    required this.level,
+    required this.description,
+    required this.joinRequests,
   });
 }
 
@@ -33,7 +39,6 @@ class GroupsPage extends StatefulWidget {
 class _GroupsPageState extends State<GroupsPage> {
   int _tabIndex = 0;
 
-  // ثابتة لتفادي مشاكل web
   static const List<Group> joined = <Group>[
     Group(
       name: "Morning Football",
@@ -42,8 +47,11 @@ class _GroupsPageState extends State<GroupsPage> {
       time: "6:00 AM",
       creator: "Khalid",
       activity: "Football",
-      members: "2/12",
-      risk: "Medium",
+      members: ["Khalid", "Faisal"],
+      maxParticipants: 12,
+      level: "Intermediate ⚡️",
+      description: "Friendly football match. Please arrive early.",
+      joinRequests: ["Nasser"],
     ),
     Group(
       name: "Weekend Hikers",
@@ -52,8 +60,11 @@ class _GroupsPageState extends State<GroupsPage> {
       time: "5:00 AM",
       creator: "Sara",
       activity: "Hiking",
-      members: "3/8",
-      risk: "High",
+      members: ["Sara", "Mona", "Lama"],
+      maxParticipants: 8,
+      level: "Advanced 🔥",
+      description: "Mountain hiking activity for experienced members.",
+      joinRequests: ["Huda", "Reem"],
     ),
     Group(
       name: "Tennis Club",
@@ -62,8 +73,11 @@ class _GroupsPageState extends State<GroupsPage> {
       time: "7:00 PM",
       creator: "Ahmed",
       activity: "Tennis",
-      members: "1/10",
-      risk: "Low",
+      members: ["Ahmed"],
+      maxParticipants: 10,
+      level: "Beginner 🌱",
+      description: "Beginner-friendly tennis session.",
+      joinRequests: [],
     ),
   ];
 
@@ -75,235 +89,319 @@ class _GroupsPageState extends State<GroupsPage> {
       time: "5:15 PM",
       creator: "You",
       activity: "Running",
-      members: "1/15",
-      risk: "Low",
+      members: ["You"],
+      maxParticipants: 15,
+      level: "Beginner 🌱",
+      description: "Easy running session during sunset.",
+      joinRequests: ["Sara", "Ahmed"],
     ),
   ];
 
-  Color _riskColor(String risk) {
-    switch (risk.toLowerCase()) {
-      case "high":
+  Color _levelColor(String level) {
+    switch (level.toLowerCase()) {
+      case "advanced 🔥":
         return const Color(0xFFE53935);
-      case "medium":
+      case "intermediate ⚡️":
         return const Color(0xFFF9A825);
       default:
         return const Color(0xFF2E7D32);
     }
   }
 
-  IconData _riskIcon(String risk) {
-    switch (risk.toLowerCase()) {
-      case "high":
-        return Icons.report_gmailerrorred_rounded;
-      case "medium":
-        return Icons.warning_amber_rounded;
+  IconData _levelIcon(String level) {
+    switch (level.toLowerCase()) {
+      case "advanced 🔥":
+        return Icons.local_fire_department_rounded;
+      case "intermediate ⚡️":
+        return Icons.flash_on_rounded;
       default:
-        return Icons.verified_rounded;
+        return Icons.eco_rounded;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    const Color pageBg = Color(0xFFF3F4F6);
+    const Color darkBlue = Color(0xFF213F73);
+    const Color midBlue = Color(0xFF86B3EE);
+    const Color lightBlue = Color(0xFFAED3EC);
+    const Color cardColor = Color(0xFFF1F5F9);
+
     final List<Group> list = (_tabIndex == 0) ? joined : created;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FB),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: Colors.black,
-        title: const Text(
-          "My Groups",
-          style: TextStyle(fontWeight: FontWeight.w900),
-        ),
-        leading: const BackButton(color: Colors.black),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Create (prototype)")),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF12B981),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text(
-                "Create",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          const SizedBox(height: 14),
-
-          // Tabs
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Row(
+      backgroundColor: pageBg,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
               children: [
-                Expanded(child: _segTab("Joined (3)", 0)),
-                Expanded(child: _segTab("Created (1)", 1)),
+                Container(
+                  height: 280,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(56),
+                      bottomRight: Radius.circular(56),
+                    ),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [midBlue, lightBlue],
+                    ),
+                  ),
+                ),
+                Expanded(child: Container(color: pageBg)),
               ],
             ),
-          ),
-
-          const SizedBox(height: 14),
-
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              itemCount: list.length,
-              itemBuilder: (context, index) {
-                final g = list[index];
-                final riskColor = _riskColor(g.risk);
-
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      AppRoutes.groupDetails,
-                      arguments: g, // مهم لـ main.dart as Group
-                    );
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(18),
+            SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(26, 24, 26, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      _topIconButton(
+                        icon: Icons.arrow_back,
+                        onTap: () => Navigator.pop(context),
+                      ),
+                      const SizedBox(width: 14),
+                      const Expanded(
+                        child: Text(
+                          "My Groups",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 34,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 28),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 14,
-                          offset: const Offset(0, 6),
-                        )
-                      ],
+                      color: cardColor.withOpacity(0.92),
+                      borderRadius: BorderRadius.circular(28),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                g.name,
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w900,
-                                  color: Color(0xFF111827),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 7),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE6FBF2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                g.activity,
-                                style: const TextStyle(
-                                  color: Color(0xFF12B981),
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        _infoRow(Icons.location_on_outlined, g.location),
-                        const SizedBox(height: 8),
-                        _infoRow(Icons.calendar_month_outlined, g.date),
-                        const SizedBox(height: 8),
-                        _infoRow(Icons.access_time_rounded, g.time),
-                        const SizedBox(height: 12),
-                        const Divider(color: Color(0xFFE8EEF5)),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            const Icon(Icons.person_outline_rounded,
-                                size: 18, color: Colors.black45),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                "by ${g.creator}",
-                                style: const TextStyle(
-                                  color: Colors.black54,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                            Icon(_riskIcon(g.risk),
-                                size: 18, color: riskColor),
-                            const SizedBox(width: 6),
-                            Text(
-                              g.risk,
-                              style: TextStyle(
-                                color: riskColor,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            const Icon(Icons.groups_2_outlined,
-                                size: 18, color: Color(0xFF12B981)),
-                            const SizedBox(width: 6),
-                            Text(
-                              g.members,
-                              style: const TextStyle(
-                                color: Color(0xFF12B981),
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                          ],
-                        ),
+                        Expanded(child: _segTab("Joined (${joined.length})", 0)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _segTab("Created (${created.length})", 1)),
                       ],
                     ),
                   ),
-                );
-              },
+                  const SizedBox(height: 24),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: list.length,
+                    itemBuilder: (context, index) {
+                      final g = list[index];
+                      final levelColor = _levelColor(g.level);
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.groupDetails,
+                            arguments: {
+                              "groupName": g.name,
+                              "location": g.location,
+                              "date": g.date,
+                              "time": g.time,
+                              "creatorName": g.creator,
+                              "activityType": g.activity,
+                              "members": g.members,
+                              "membersCount": g.members.length,
+                              "maxParticipants": g.maxParticipants,
+                              "riskLevel": g.level,
+                              "description": g.description,
+                              "joinRequests": g.joinRequests,
+                              "isOwner": _tabIndex == 1,
+                            },
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 18),
+                          padding: const EdgeInsets.all(22),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.88),
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x14000000),
+                                blurRadius: 16,
+                                offset: Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      g.name,
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w800,
+                                        color: darkBlue,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFDDEBFB),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      g.activity,
+                                      style: const TextStyle(
+                                        color: darkBlue,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              _infoRow(Icons.location_on_outlined, g.location),
+                              const SizedBox(height: 10),
+                              _infoRow(Icons.calendar_month_outlined, g.date),
+                              const SizedBox(height: 10),
+                              _infoRow(Icons.access_time_rounded, g.time),
+                              const SizedBox(height: 16),
+                              const Divider(color: Color(0xFFE3E8EF)),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.person_outline_rounded,
+                                    size: 18,
+                                    color: Colors.black45,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      "by ${g.creator}",
+                                      style: const TextStyle(
+                                        color: darkBlue,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                  Icon(
+                                    _levelIcon(g.level),
+                                    size: 18,
+                                    color: levelColor,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    g.level,
+                                    style: TextStyle(
+                                      color: levelColor,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  const Icon(
+                                    Icons.groups_2_outlined,
+                                    size: 18,
+                                    color: darkBlue,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "${g.members.length}/${g.maxParticipants}",
+                                    style: const TextStyle(
+                                      color: darkBlue,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (_tabIndex == 1 && g.joinRequests.isNotEmpty) ...[
+                                const SizedBox(height: 12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEAF4FF),
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  child: Text(
+                                    "Pending requests: ${g.joinRequests.length}",
+                                    style: const TextStyle(
+                                      color: darkBlue,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _topIconButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 58,
+        height: 58,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.22),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 26,
+        ),
       ),
     );
   }
 
   Widget _segTab(String title, int index) {
     final selected = _tabIndex == index;
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
+
+    return GestureDetector(
       onTap: () => setState(() => _tabIndex = index),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: selected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          color: selected ? const Color(0xFFDDEBFB) : Colors.transparent,
+          borderRadius: BorderRadius.circular(22),
         ),
         child: Text(
           title,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontWeight: FontWeight.w900,
-            color: selected ? const Color(0xFF111827) : Colors.black45,
+            fontWeight: FontWeight.w800,
+            color: selected ? const Color(0xFF213F73) : Colors.black54,
           ),
         ),
       ),
@@ -313,14 +411,15 @@ class _GroupsPageState extends State<GroupsPage> {
   Widget _infoRow(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: Colors.black38),
+        const SizedBox(width: 2),
+        Icon(icon, size: 20, color: Color(0xFF213F73)),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             text,
             style: const TextStyle(
-              color: Colors.black54,
-              fontWeight: FontWeight.w700,
+              color: Color(0xFF213F73),
+              fontWeight: FontWeight.w600,
               fontSize: 16,
             ),
           ),
