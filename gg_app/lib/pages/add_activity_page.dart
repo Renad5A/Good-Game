@@ -26,7 +26,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
 
   final TextEditingController _activityNameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _googleMapsLinkController = TextEditingController();
+  final TextEditingController _googleMapsLinkController =
+      TextEditingController();
   final TextEditingController _feesController = TextEditingController(text: '0');
   final TextEditingController _maxParticipantsController =
       TextEditingController(text: '20');
@@ -49,8 +50,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
 
-  String riskLevel = 'Low Risk';
-  String createAs = 'Regular User';
+  String selectedLevel = 'Beginner';
   String genderPreference = 'Mixed';
   String activityMode = 'One-time Event';
   String? recurringFrequency;
@@ -262,7 +262,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
     ];
 
     final dayName = weekdays[selectedDate!.weekday - 1];
-    final hour = selectedTime!.hourOfPeriod == 0 ? 12 : selectedTime!.hourOfPeriod;
+    final hour =
+        selectedTime!.hourOfPeriod == 0 ? 12 : selectedTime!.hourOfPeriod;
     final minute = selectedTime!.minute.toString().padLeft(2, '0');
     final period = selectedTime!.period == DayPeriod.am ? 'AM' : 'PM';
 
@@ -376,6 +377,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
       return;
     }
 
+    final int maxParticipants =
+        int.tryParse(_maxParticipantsController.text.trim()) ?? 20;
+
     final lat = _selectedLocation?.latitude ??
         neighborhoodCoordinates[selectedNeighborhood]?.latitude;
     final lng = _selectedLocation?.longitude ??
@@ -383,24 +387,25 @@ class _AddActivityPageState extends State<AddActivityPage> {
 
     final result = {
       "title": _activityNameController.text.trim(),
-      "host": createAs == 'Organizer' ? "Organizer" : "Regular_User",
+      "host": "Creator",
+      "creatorName": "Creator",
       "activity": selectedActivityType,
       "activityPlain": _getPlainActivityName(selectedActivityType!),
       "description": _descriptionController.text.trim(),
-      "riskLevel": riskLevel,
+      "level": selectedLevel,
+      "riskLevel": selectedLevel,
       "location": selectedNeighborhood,
       "neighborhood": selectedNeighborhood,
       "dayTime": _buildDayTimeText(),
       "time": _mapPreferredTimeFromSelectedTime(),
       "participants": 1,
-      "spotsLeft":
-          (int.tryParse(_maxParticipantsController.text.trim()) ?? 20) - 1,
+      "spotsLeft": maxParticipants - 1,
+      "maxParticipants": maxParticipants,
       "isJoined": false,
       "lat": lat,
       "lng": lng,
       "googleMapsLink": _googleMapsLinkController.text.trim(),
       "fees": _feesController.text.trim(),
-      "maxParticipants": _maxParticipantsController.text.trim(),
       "genderPreference": genderPreference,
       "activityMode": activityMode,
       "recurringFrequency": recurringFrequency,
@@ -560,9 +565,10 @@ class _AddActivityPageState extends State<AddActivityPage> {
     );
   }
 
-  Widget _buildRiskOption({
+  Widget _buildLevelOption({
     required String title,
     required String subtitle,
+    required String emoji,
     required bool selected,
     required VoidCallback onTap,
   }) {
@@ -602,6 +608,11 @@ class _AddActivityPageState extends State<AddActivityPage> {
                   : null,
             ),
             const SizedBox(width: 16),
+            Text(
+              emoji,
+              style: const TextStyle(fontSize: 22),
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -775,8 +786,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
                             const SizedBox(height: 10),
                             TextFormField(
                               controller: _activityNameController,
-                              decoration:
-                                  _inputDecoration("e.g., Morning Football Match"),
+                              decoration: _inputDecoration(
+                                "e.g., Morning Football Match",
+                              ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
                                   return "Please enter activity name";
@@ -841,46 +853,47 @@ class _AddActivityPageState extends State<AddActivityPage> {
                         ),
                       ),
                       const SizedBox(height: 18),
+
                       _buildSectionCard(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildSectionTitle(
-                              icon: Icons.warning_amber_rounded,
+                              icon: Icons.bar_chart_rounded,
                               iconColor: sectionIconOrange,
-                              title: "Risk Level *",
+                              title: "Levels *",
                             ),
                             const SizedBox(height: 18),
-                            _buildRiskOption(
-                              title: "Low Risk",
-                              subtitle:
-                                  "Safe environment, minimal physical risk",
-                              selected: riskLevel == "Low Risk",
+                            _buildLevelOption(
+                              title: "Beginner",
+                              subtitle: "Good for new starters",
+                              emoji: "🌱",
+                              selected: selectedLevel == "Beginner",
                               onTap: () {
                                 setState(() {
-                                  riskLevel = "Low Risk";
+                                  selectedLevel = "Beginner";
                                 });
                               },
                             ),
-                            _buildRiskOption(
-                              title: "Medium Risk",
-                              subtitle:
-                                  "Some physical activity, moderate risk",
-                              selected: riskLevel == "Medium Risk",
+                            _buildLevelOption(
+                              title: "Intermediate",
+                              subtitle: "For users with some experience",
+                              emoji: "⚡",
+                              selected: selectedLevel == "Intermediate",
                               onTap: () {
                                 setState(() {
-                                  riskLevel = "Medium Risk";
+                                  selectedLevel = "Intermediate";
                                 });
                               },
                             ),
-                            _buildRiskOption(
-                              title: "High Risk",
-                              subtitle:
-                                  "Intense activity, higher injury risk",
-                              selected: riskLevel == "High Risk",
+                            _buildLevelOption(
+                              title: "Advanced",
+                              subtitle: "For experienced participants",
+                              emoji: "🔥",
+                              selected: selectedLevel == "Advanced",
                               onTap: () {
                                 setState(() {
-                                  riskLevel = "High Risk";
+                                  selectedLevel = "Advanced";
                                 });
                               },
                             ),
@@ -888,6 +901,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
                         ),
                       ),
                       const SizedBox(height: 18),
+
                       _buildSectionCard(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -977,13 +991,15 @@ class _AddActivityPageState extends State<AddActivityPage> {
                             const SizedBox(height: 10),
                             TextFormField(
                               controller: _googleMapsLinkController,
-                              decoration:
-                                  _inputDecoration("https://maps.google.com/..."),
+                              decoration: _inputDecoration(
+                                "https://maps.google.com/...",
+                              ),
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 18),
+
                       _buildSectionCard(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1017,6 +1033,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
                         ),
                       ),
                       const SizedBox(height: 18),
+
                       _buildSectionCard(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1025,41 +1042,6 @@ class _AddActivityPageState extends State<AddActivityPage> {
                               icon: Icons.people_outline,
                               iconColor: sectionIconOrange,
                               title: "Settings",
-                            ),
-                            const SizedBox(height: 18),
-                            const Text(
-                              "Create as",
-                              style: TextStyle(
-                                color: titleColor,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                _buildOptionCard(
-                                  title: "Regular User",
-                                  icon: Icons.person_outline,
-                                  selected: createAs == "Regular User",
-                                  onTap: () {
-                                    setState(() {
-                                      createAs = "Regular User";
-                                    });
-                                  },
-                                ),
-                                const SizedBox(width: 12),
-                                _buildOptionCard(
-                                  title: "Organizer",
-                                  icon: Icons.people_outline,
-                                  selected: createAs == "Organizer",
-                                  onTap: () {
-                                    setState(() {
-                                      createAs = "Organizer";
-                                    });
-                                  },
-                                ),
-                              ],
                             ),
                             const SizedBox(height: 18),
                             Row(
