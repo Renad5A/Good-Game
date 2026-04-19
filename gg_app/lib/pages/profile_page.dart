@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'skill_level_page.dart';
-import '../edit_profile_page.dart';
+import 'edit_profile_page.dart';
+import 'home_page.dart';
+import 'groups_page.dart';
+import 'search_page.dart';
+import 'add_activity_page.dart'; // ✏️ إضافة جديدة: استيراد صفحة الإنشاء
+import 'settings_page.dart';
+import 'admin_panel_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
-  // تعريف لوحة الألوان الفخمة
-  static const Color bgDark = Color(0xFF0F1214);      // الخلفية العميق
-  static const Color surfaceDark = Color(0xFF1A1F23); // الحاويات والبطاقات
-  static const Color accentGold = Color(0xFFD4AF37);  // الذهبي للأيقونات والتفاعل
-  static const Color textMain = Color(0xFFE0E0E0);    // النص الأساسي
+  static const Color bgDark = Color(0xFF0F1214);
+  static const Color surfaceDark = Color(0xFF1A1F23);
+  static const Color accentGold = Color(0xFFD4AF37);
+  static const Color textMain = Color(0xFFE0E0E0);
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +28,30 @@ class ProfilePage extends StatelessWidget {
           selectedItemColor: accentGold,
           unselectedItemColor: Colors.white38,
           showUnselectedLabels: true,
+          onTap: (index) {
+            if (index == 0) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const HomePage()),
+              );
+            } else if (index == 1) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const GroupsPage()),
+              );
+            } else if (index == 2) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const SearchPage()),
+              );
+            } else if (index == 3) {
+              // ✏️ تعديل: الانتقال لصفحة Create بدل السيرش
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const AddActivityPage()),
+              );
+            }
+          },
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
             BottomNavigationBarItem(icon: Icon(Icons.group_outlined), label: 'Groups'),
@@ -39,7 +68,6 @@ class ProfilePage extends StatelessWidget {
               alignment: Alignment.center,
               clipBehavior: Clip.none,
               children: [
-                // الغطاء العلوي بتدرج ذهبي خفيف
                 Container(
                   height: 160,
                   width: double.infinity,
@@ -63,14 +91,18 @@ class ProfilePage extends StatelessWidget {
                           ),
                           IconButton(
                             icon: const Icon(Icons.settings_outlined, color: textMain),
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const SettingsPage()),
+                              );
+                            },
                           ),
                         ],
                       ),
                     ),
                   ),
                 ),
-                // الصورة الشخصية مع إطار ذهبي
                 Positioned(
                   top: 110,
                   child: CircleAvatar(
@@ -79,7 +111,7 @@ class ProfilePage extends StatelessWidget {
                     child: CircleAvatar(
                       radius: 48,
                       backgroundColor: surfaceDark,
-                      child: const Text('A', 
+                      child: const Text('A',
                         style: TextStyle(fontSize: 40, color: accentGold, fontWeight: FontWeight.bold)
                       ),
                     ),
@@ -88,12 +120,10 @@ class ProfilePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 65),
-
-            const Text('Ahmed', 
+            const Text('Ahmed',
               style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1)
             ),
             const Text('Member', style: TextStyle(color: accentGold, fontWeight: FontWeight.w500)),
-            
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               child: Text(
@@ -102,21 +132,16 @@ class ProfilePage extends StatelessWidget {
                 style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
               ),
             ),
-
             const SizedBox(height: 10),
             _buildActionButtons(context),
-            
             const SizedBox(height: 25),
             _buildSectionHeader('Favorite Activities'),
             _buildActivityChips(),
-
             _buildSectionHeader('Joined Groups (2)'),
             _buildGroupCard('Morning Football', 'by Khalid', '2/12', 'Football'),
             _buildGroupCard('Weekend Hikers', 'by Sara', '3/8', 'Hiking'),
-
             _buildSectionHeader('Created Groups (1)'),
             _buildGroupCard('Evening Running', 'by Ahmed (You)', '2/10', 'Running'),
-            
             const SizedBox(height: 30),
           ],
         ),
@@ -125,28 +150,36 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _customButton(Icons.edit_outlined, 'Edit Profile', () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfilePage()));
-        }),
-        const SizedBox(width: 12),
-        _customButton(Icons.emoji_events_outlined, 'Skill Level', () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const SkillLevelPage()));
-        }),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _customButton(Icons.edit_outlined, 'Edit Profile', () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfilePage()));
+          }),
+          const SizedBox(width: 8),
+          _customButton(Icons.emoji_events_outlined, 'Skill Level', () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const SkillLevelPage()));
+          }),
+          const SizedBox(width: 8),
+          _customButton(Icons.admin_panel_settings_outlined, 'Admin', () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPanelPage()));
+          }),
+        ],
+      ),
     );
   }
 
   Widget _customButton(IconData icon, String label, VoidCallback onTap) {
     return ElevatedButton.icon(
       onPressed: onTap,
-      icon: Icon(icon, size: 18, color: Colors.black),
-      label: Text(label, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+      icon: Icon(icon, size: 16, color: Colors.black),
+      label: Text(label, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12)),
       style: ElevatedButton.styleFrom(
         backgroundColor: accentGold,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         elevation: 0,
       ),
@@ -157,8 +190,8 @@ class ProfilePage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 25, 20, 12),
       child: Align(
-        alignment: Alignment.centerLeft, 
-        child: Text(title, 
+        alignment: Alignment.centerLeft,
+        child: Text(title,
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: accentGold, letterSpacing: 0.5)
         )
       ),
