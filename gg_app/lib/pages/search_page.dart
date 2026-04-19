@@ -4,6 +4,25 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'add_activity_page.dart';
+import 'group_details_page.dart';
+
+const String mapStyle = '''
+[
+  {
+    "featureType": "poi",
+    "stylers": [{"visibility": "off"}]
+  },
+  {
+    "featureType": "transit",
+    "stylers": [{"visibility": "off"}]
+  },
+  {
+    "featureType": "road",
+    "elementType": "labels.icon",
+    "stylers": [{"visibility": "off"}]
+  }
+]
+''';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -14,7 +33,7 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   static const String googleDirectionsApiKey =
-      'AIzaSyApZZxgQD6EXVhtOC-OxyZc241EgIXo1sE';
+      'AIzaSyAmkNAkEYJSxliS1El_chGCa9xKzX-iz_8';
 
   GoogleMapController? _mapController;
   StreamSubscription<Position>? _positionStreamSubscription;
@@ -37,6 +56,10 @@ class _SearchPageState extends State<SearchPage> {
 
   bool _isTracking = false;
   bool _isFetchingRoute = false;
+  bool _isFollowingUser = true;
+  bool _isMapReady = false;
+
+  DateTime? _lastRouteFetchTime;
 
   List<Map<String, dynamic>> filteredActivities = [];
   Map<String, dynamic>? trackedActivity;
@@ -101,10 +124,16 @@ class _SearchPageState extends State<SearchPage> {
     {
       "title": "Weekend Football League",
       "host": "Ahmed_Sports",
+      "creatorName": "Ahmed_Sports",
       "activity": "⚽ Football",
       "activityPlain": "Football",
       "time": "Morning (6 AM - 12 PM)",
       "dayTime": "Friday 6:00 AM",
+      "date": "Friday",
+      "description":
+          "Join us for an exciting football match with friendly players.",
+      "level": "Intermediate",
+      "riskLevel": "Intermediate",
       "location": "Al Malaz Stadium",
       "neighborhood": "Al Malaz",
       "participants": 14,
@@ -113,14 +142,21 @@ class _SearchPageState extends State<SearchPage> {
       "isJoined": false,
       "lat": 24.6877,
       "lng": 46.7228,
+      "maxParticipants": 18,
     },
     {
       "title": "Padel Night",
       "host": "Padel_Riyadh",
+      "creatorName": "Padel_Riyadh",
       "activity": "🎾 Tennis",
       "activityPlain": "Padel",
       "time": "Evening (5 PM - 9 PM)",
       "dayTime": "Tuesday 8:00 PM",
+      "date": "Tuesday",
+      "description":
+          "Night padel game for players who love competition and fun.",
+      "level": "Intermediate",
+      "riskLevel": "Intermediate",
       "location": "Al Rimal",
       "neighborhood": "Al Rimal",
       "participants": 4,
@@ -129,14 +165,21 @@ class _SearchPageState extends State<SearchPage> {
       "isJoined": false,
       "lat": 24.864122,
       "lng": 46.806310,
+      "maxParticipants": 4,
     },
     {
       "title": "Football Match",
       "host": "Nadwa_Team",
+      "creatorName": "Nadwa_Team",
       "activity": "⚽ Football",
       "activityPlain": "Football",
       "time": "Evening (5 PM - 9 PM)",
       "dayTime": "Wednesday 6:00 PM",
+      "date": "Wednesday",
+      "description":
+          "A football match for all players in a fun and active group.",
+      "level": "Advanced",
+      "riskLevel": "Advanced",
       "location": "Al Nadwa",
       "neighborhood": "Al Nadwa",
       "participants": 22,
@@ -145,14 +188,20 @@ class _SearchPageState extends State<SearchPage> {
       "isJoined": false,
       "lat": 24.794550,
       "lng": 46.876100,
+      "maxParticipants": 25,
     },
     {
       "title": "Morning Walk",
       "host": "Walk_Group",
+      "creatorName": "Walk_Group",
       "activity": "🚶 Walking",
       "activityPlain": "Walking",
       "time": "Morning (6 AM - 12 PM)",
       "dayTime": "Saturday 7:00 AM",
+      "date": "Saturday",
+      "description": "Relaxing morning walk to start the day with energy.",
+      "level": "Beginner",
+      "riskLevel": "Beginner",
       "location": "Ishbiliyah Park",
       "neighborhood": "Ishbiliyah",
       "participants": 9,
@@ -161,14 +210,21 @@ class _SearchPageState extends State<SearchPage> {
       "isJoined": false,
       "lat": 24.8002,
       "lng": 46.7702,
+      "maxParticipants": 12,
     },
     {
       "title": "Photography Walk",
       "host": "LensClub",
+      "creatorName": "LensClub",
       "activity": "📷 Photography",
       "activityPlain": "Photography",
       "time": "Afternoon (12 PM - 5 PM)",
       "dayTime": "Monday 4:00 PM",
+      "date": "Monday",
+      "description":
+          "Capture amazing moments around the city with other photographers.",
+      "level": "Beginner",
+      "riskLevel": "Beginner",
       "location": "Al Nadhim",
       "neighborhood": "Al Nadhim",
       "participants": 7,
@@ -177,14 +233,21 @@ class _SearchPageState extends State<SearchPage> {
       "isJoined": false,
       "lat": 24.8040,
       "lng": 46.8615,
+      "maxParticipants": 15,
     },
     {
       "title": "Sports Boulevard Run",
       "host": "RunCrew",
+      "creatorName": "RunCrew",
       "activity": "🏃 Running",
       "activityPlain": "Running",
       "time": "Evening (5 PM - 9 PM)",
       "dayTime": "Thursday 6:30 PM",
+      "date": "Thursday",
+      "description":
+          "Join our running group and enjoy a motivating group workout.",
+      "level": "Intermediate",
+      "riskLevel": "Intermediate",
       "location": "Hittin Track",
       "neighborhood": "Hittin",
       "participants": 11,
@@ -193,6 +256,7 @@ class _SearchPageState extends State<SearchPage> {
       "isJoined": false,
       "lat": 24.774265,
       "lng": 46.623154,
+      "maxParticipants": 16,
     },
   ];
 
@@ -270,6 +334,17 @@ class _SearchPageState extends State<SearchPage> {
       setState(() {});
     }
 
+    if (_mapController != null && _userLocation != null) {
+      await _mapController!.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: _userLocation!,
+            zoom: 15,
+          ),
+        ),
+      );
+    }
+
     _positionStreamSubscription?.cancel();
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
@@ -279,10 +354,12 @@ class _SearchPageState extends State<SearchPage> {
     ).listen((Position position) async {
       _userLocation = LatLng(position.latitude, position.longitude);
 
-      if (trackedActivity != null && _isTracking) {
-        await _refreshTrackingRoute(followUser: true);
+      if (!mounted) return;
+
+      if (_isTracking && trackedActivity != null) {
+        await _refreshTrackingRoute(followUser: true, updateOnlyIfNeeded: true);
       } else {
-        if (mounted) setState(() {});
+        setState(() {});
       }
     });
   }
@@ -298,8 +375,34 @@ class _SearchPageState extends State<SearchPage> {
       CameraUpdate.newCameraPosition(
         CameraPosition(
           target: _userLocation!,
-          zoom: 15,
+          zoom: 16,
+          tilt: 45,
         ),
+      ),
+    );
+  }
+
+  Future<void> _focusOnTrackedRoute() async {
+    if (_userLocation == null ||
+        trackedActivity == null ||
+        _mapController == null) {
+      return;
+    }
+
+    final lat = trackedActivity!['lat'];
+    final lng = trackedActivity!['lng'];
+
+    if (lat is! double || lng is! double) return;
+
+    final destination = LatLng(lat, lng);
+
+    await _mapController!.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        _boundsFromPoints([
+          _userLocation!,
+          destination,
+        ]),
+        80,
       ),
     );
   }
@@ -333,6 +436,16 @@ class _SearchPageState extends State<SearchPage> {
     newActivity['isJoined'] = newActivity['isJoined'] ?? false;
     newActivity['participants'] = newActivity['participants'] ?? 1;
     newActivity['spotsLeft'] = newActivity['spotsLeft'] ?? 0;
+    newActivity['creatorName'] =
+        newActivity['creatorName'] ?? newActivity['host'] ?? 'Creator';
+    newActivity['date'] = newActivity['date'] ?? 'Not specified';
+    newActivity['description'] = newActivity['description'] ??
+        'Join us for this activity and enjoy your time with the group.';
+    newActivity['level'] = newActivity['level'] ?? 'Beginner';
+    newActivity['riskLevel'] =
+        newActivity['riskLevel'] ?? newActivity['level'] ?? 'Beginner';
+    newActivity['maxParticipants'] = newActivity['maxParticipants'] ??
+        ((newActivity['participants'] ?? 1) + (newActivity['spotsLeft'] ?? 0));
 
     setState(() {
       allActivities.insert(0, newActivity);
@@ -343,7 +456,10 @@ class _SearchPageState extends State<SearchPage> {
     if (lat != null && lng != null && _mapController != null) {
       await _mapController!.animateCamera(
         CameraUpdate.newCameraPosition(
-          CameraPosition(target: LatLng(lat, lng), zoom: 14),
+          CameraPosition(
+            target: LatLng(lat, lng),
+            zoom: 15,
+          ),
         ),
       );
     }
@@ -360,8 +476,8 @@ class _SearchPageState extends State<SearchPage> {
           _normalizeNeighborhood(selectedNeighborhood!) ==
               _normalizeNeighborhood(activity["neighborhood"].toString());
 
-      final activityMatch = selectedActivity == null ||
-          selectedActivity == activity["activity"];
+      final activityMatch =
+          selectedActivity == null || selectedActivity == activity["activity"];
 
       final timeMatch =
           selectedTime == null || selectedTime == activity["time"];
@@ -387,6 +503,7 @@ class _SearchPageState extends State<SearchPage> {
       }).toList();
 
       hasSearched = true;
+      showMapView = false;
     });
   }
 
@@ -443,6 +560,7 @@ class _SearchPageState extends State<SearchPage> {
     setState(() {
       trackedActivity = activity;
       _isTracking = true;
+      _isFollowingUser = true;
       showMapView = true;
     });
 
@@ -453,12 +571,17 @@ class _SearchPageState extends State<SearchPage> {
     setState(() {
       trackedActivity = null;
       _isTracking = false;
+      _isFetchingRoute = false;
+      _isFollowingUser = true;
       _polylines = {};
       _extraTrackingMarkers = {};
     });
   }
 
-  Future<void> _refreshTrackingRoute({bool followUser = false}) async {
+  Future<void> _refreshTrackingRoute({
+    bool followUser = false,
+    bool updateOnlyIfNeeded = false,
+  }) async {
     if (_userLocation == null || trackedActivity == null) return;
 
     final lat = trackedActivity!['lat'];
@@ -467,6 +590,32 @@ class _SearchPageState extends State<SearchPage> {
     if (lat is! double || lng is! double) return;
 
     final destination = LatLng(lat, lng);
+
+    if (updateOnlyIfNeeded && _lastRouteFetchTime != null) {
+      final seconds = DateTime.now().difference(_lastRouteFetchTime!).inSeconds;
+      if (seconds < 2) {
+        if (!mounted) return;
+
+        setState(() {
+          _extraTrackingMarkers = _buildTrackingMarkers(destination);
+          _polylines = {
+            Polyline(
+              polylineId: const PolylineId('direct_line'),
+              points: [_userLocation!, destination],
+              color: Colors.red,
+              width: 8,
+              geodesic: true,
+              zIndex: 1,
+            ),
+          };
+        });
+
+        if (followUser && _isFollowingUser) {
+          await _animateToUserLocation();
+        }
+        return;
+      }
+    }
 
     if (mounted) {
       setState(() {
@@ -484,119 +633,113 @@ class _SearchPageState extends State<SearchPage> {
             _userLocation!.latitude,
             _userLocation!.longitude,
           ),
-          destination: PointLatLng(destination.latitude, destination.longitude),
+          destination: PointLatLng(
+            destination.latitude,
+            destination.longitude,
+          ),
           mode: TravelMode.driving,
         ),
       );
 
-      final List<LatLng> routePoints = [];
+      debugPrint('Route status: ${result.status}');
+      debugPrint('Route error: ${result.errorMessage}');
+      debugPrint('Route points count: ${result.points.length}');
+
+      _lastRouteFetchTime = DateTime.now();
+
+      List<LatLng> routePoints = [];
 
       if (result.points.isNotEmpty) {
-        for (final point in result.points) {
-          routePoints.add(LatLng(point.latitude, point.longitude));
-        }
+        routePoints = result.points
+            .map((point) => LatLng(point.latitude, point.longitude))
+            .toList();
       } else {
-        routePoints.add(_userLocation!);
-        routePoints.add(destination);
+        routePoints = [_userLocation!, destination];
       }
 
-      final updatedPolylines = <Polyline>{
-        Polyline(
-          polylineId: const PolylineId('route_line'),
-          points: routePoints,
-          width: 6,
-          color: routeColor,
-          geodesic: true,
-          jointType: JointType.round,
-          startCap: Cap.roundCap,
-          endCap: Cap.roundCap,
-        ),
-      };
-
-      final trackingMarkers = <Marker>{
-        Marker(
-          markerId: const MarkerId('tracking_user_marker'),
-          position: _userLocation!,
-          infoWindow: const InfoWindow(title: 'My current location'),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueAzure,
-          ),
-        ),
-        Marker(
-          markerId: const MarkerId('tracking_destination_marker'),
-          position: destination,
-          infoWindow: InfoWindow(
-            title: trackedActivity!['title']?.toString() ?? 'Destination',
-            snippet: trackedActivity!['location']?.toString() ?? '',
-            onTap: () {
-              _showActivityFromMap(trackedActivity!);
-            },
-          ),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueRose,
-          ),
-        ),
-      };
-
       if (!mounted) return;
-
-      setState(() {
-        _polylines = updatedPolylines;
-        _extraTrackingMarkers = trackingMarkers;
-        _isFetchingRoute = false;
-      });
-
-      if (followUser && _mapController != null) {
-        await _mapController!.animateCamera(
-          CameraUpdate.newLatLngBounds(
-            _boundsFromPoints(routePoints),
-            70,
-          ),
-        );
-      }
-    } catch (_) {
-      if (!mounted) return;
-
-      final fallbackPoints = <LatLng>[_userLocation!, destination];
 
       setState(() {
         _polylines = {
           Polyline(
             polylineId: const PolylineId('route_line'),
-            points: fallbackPoints,
-            width: 6,
-            color: routeColor,
+            points: routePoints,
+            color: Colors.red,
+            width: 8,
             geodesic: true,
+            jointType: JointType.round,
             startCap: Cap.roundCap,
             endCap: Cap.roundCap,
+            zIndex: 2,
           ),
         };
-        _extraTrackingMarkers = {
-          Marker(
-            markerId: const MarkerId('tracking_user_marker'),
-            position: _userLocation!,
-            infoWindow: const InfoWindow(title: 'My current location'),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueAzure,
-            ),
-          ),
-          Marker(
-            markerId: const MarkerId('tracking_destination_marker'),
-            position: destination,
-            infoWindow: InfoWindow(
-              title: trackedActivity!['title']?.toString() ?? 'Destination',
-              onTap: () {
-                _showActivityFromMap(trackedActivity!);
-              },
-            ),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueRose,
-            ),
+
+        _extraTrackingMarkers = _buildTrackingMarkers(destination);
+        _isFetchingRoute = false;
+      });
+
+      if (followUser && _isFollowingUser) {
+        await _focusOnTrackedRoute();
+      }
+    } catch (e) {
+      debugPrint('Route exception: $e');
+
+      if (!mounted) return;
+
+      setState(() {
+        _polylines = {
+          Polyline(
+            polylineId: const PolylineId('route_line_fallback'),
+            points: [_userLocation!, destination],
+            color: Colors.red,
+            width: 8,
+            geodesic: true,
+            zIndex: 2,
           ),
         };
+
+        _extraTrackingMarkers = _buildTrackingMarkers(destination);
         _isFetchingRoute = false;
       });
     }
+  }
+
+  Future<void> _animateToUserLocation() async {
+    if (_mapController == null || _userLocation == null) return;
+
+    await _mapController!.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: _userLocation!,
+          zoom: 16,
+          tilt: 45,
+        ),
+      ),
+    );
+  }
+
+  Set<Marker> _buildTrackingMarkers(LatLng destination) {
+    return {
+      Marker(
+        markerId: const MarkerId('tracking_user_marker'),
+        position: _userLocation!,
+        infoWindow: const InfoWindow(title: 'Current Location'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueAzure,
+        ),
+      ),
+      Marker(
+        markerId: const MarkerId('tracking_destination_marker'),
+        position: destination,
+        infoWindow: InfoWindow(
+          title: trackedActivity!['title']?.toString() ?? 'Destination',
+          snippet: trackedActivity!['location']?.toString() ?? '',
+        ),
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueRose,
+        ),
+      ),
+    };
   }
 
   LatLngBounds _boundsFromPoints(List<LatLng> points) {
@@ -644,9 +787,6 @@ class _SearchPageState extends State<SearchPage> {
             infoWindow: InfoWindow(
               title: activity['title']?.toString() ?? 'Activity',
               snippet: activity['location']?.toString() ?? '',
-              onTap: () {
-                _showActivityFromMap(activity);
-              },
             ),
             onTap: () {
               _showActivityFromMap(activity);
@@ -679,7 +819,8 @@ class _SearchPageState extends State<SearchPage> {
       hintStyle: const TextStyle(color: Colors.grey),
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: Color(0xFFD9D9D9), width: 1.2),
@@ -862,7 +1003,10 @@ class _SearchPageState extends State<SearchPage> {
             value: selectedNeighborhood,
             dropdownColor: Colors.white,
             style: const TextStyle(color: Colors.black87, fontSize: 16),
-            icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+            icon: const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: Colors.grey,
+            ),
             decoration: _inputDecoration("Select neighborhood"),
             items: neighborhoods.map((item) {
               return DropdownMenuItem<String>(
@@ -882,7 +1026,10 @@ class _SearchPageState extends State<SearchPage> {
               value: selectedActivity,
               dropdownColor: Colors.white,
               style: const TextStyle(color: Colors.black87, fontSize: 16),
-              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+              icon: const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: Colors.grey,
+              ),
               decoration: _inputDecoration("Activity type"),
               items: activityTypes.map((item) {
                 return DropdownMenuItem<String>(
@@ -901,7 +1048,10 @@ class _SearchPageState extends State<SearchPage> {
               value: selectedTime,
               dropdownColor: Colors.white,
               style: const TextStyle(color: Colors.black87, fontSize: 16),
-              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+              icon: const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: Colors.grey,
+              ),
               decoration: _inputDecoration("Time of day"),
               items: preferredTimes.map((item) {
                 return DropdownMenuItem<String>(
@@ -946,7 +1096,9 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildTrackingBanner() {
-    if (!_isTracking || trackedActivity == null) return const SizedBox.shrink();
+    if (!_isTracking || trackedActivity == null) {
+      return const SizedBox.shrink();
+    }
 
     final lat = trackedActivity!['lat'] as double?;
     final lng = trackedActivity!['lng'] as double?;
@@ -966,30 +1118,81 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          const Icon(Icons.navigation_rounded, color: primaryColor),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              _isFetchingRoute
-                  ? "Updating route..."
-                  : "Tracking ${trackedActivity!['title']} • ${_distanceText(lat, lng)}",
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: titleColor,
+          Row(
+            children: [
+              const Icon(Icons.navigation_rounded, color: primaryColor),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _isFetchingRoute
+                      ? "Updating live route..."
+                      : "Tracking ${trackedActivity!['title']} • ${_distanceText(lat, lng)}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: titleColor,
+                  ),
+                ),
               ),
-            ),
+              TextButton(
+                onPressed: _stopTracking,
+                child: const Text(
+                  "Stop",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: _stopTracking,
-            child: const Text(
-              "Stop",
-              style: TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.w600,
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    setState(() {
+                      _isFollowingUser = !_isFollowingUser;
+                    });
+
+                    if (_isFollowingUser) {
+                      await _animateToUserLocation();
+                    }
+                  },
+                  icon: Icon(
+                    _isFollowingUser
+                        ? Icons.gps_fixed_rounded
+                        : Icons.gps_not_fixed_rounded,
+                    size: 18,
+                  ),
+                  label: Text(_isFollowingUser ? "Follow ON" : "Follow OFF"),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: routeColor,
+                    side: const BorderSide(color: routeColor),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _focusOnTrackedRoute,
+                  icon: const Icon(Icons.alt_route_rounded, size: 18),
+                  label: const Text("Show Route"),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: primaryColor,
+                    side: const BorderSide(color: primaryColor),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -1006,43 +1209,90 @@ class _SearchPageState extends State<SearchPage> {
             width: double.infinity,
             child: GoogleMap(
               initialCameraPosition: _initialPosition,
-              markers: _buildMarkers(),
-              polylines: _polylines,
-              onMapCreated: (controller) => _mapController = controller,
+              markers: Set<Marker>.of(_buildMarkers()),
+              polylines: Set<Polyline>.of(_polylines),
+              onMapCreated: (controller) async {
+                _mapController = controller;
+                _isMapReady = true;
+                await _mapController!.setMapStyle(mapStyle);
+
+                if (_userLocation != null) {
+                  await _goToMyLocation();
+                }
+              },
               onCameraMove: _onCameraMove,
               myLocationEnabled: true,
               myLocationButtonEnabled: false,
               zoomControlsEnabled: true,
+              mapType: MapType.normal,
+              trafficEnabled: false,
+              buildingsEnabled: false,
+              compassEnabled: true,
             ),
           ),
         ),
         Positioned(
           right: 16,
           bottom: 16,
-          child: Material(
-            color: Colors.white,
-            elevation: 3,
-            borderRadius: BorderRadius.circular(14),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(14),
-              onTap: _goToMyLocation,
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                child: Row(
-                  children: [
-                    Icon(Icons.navigation_outlined, color: Color(0xFF384054)),
-                    SizedBox(width: 8),
-                    Text(
-                      "My Location",
-                      style: TextStyle(
-                        color: Color(0xFF384054),
-                        fontWeight: FontWeight.w500,
-                      ),
+          child: Column(
+            children: [
+              Material(
+                color: Colors.white,
+                elevation: 3,
+                borderRadius: BorderRadius.circular(14),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: _goToMyLocation,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    child: Row(
+                      children: [
+                        Icon(Icons.navigation_outlined,
+                            color: Color(0xFF384054)),
+                        SizedBox(width: 8),
+                        Text(
+                          "My Location",
+                          style: TextStyle(
+                            color: Color(0xFF384054),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+              if (_isTracking) ...[
+                const SizedBox(height: 10),
+                Material(
+                  color: Colors.white,
+                  elevation: 3,
+                  borderRadius: BorderRadius.circular(14),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: _focusOnTrackedRoute,
+                    child: const Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      child: Row(
+                        children: [
+                          Icon(Icons.alt_route_rounded,
+                              color: Color(0xFF384054)),
+                          SizedBox(width: 8),
+                          Text(
+                            "Route",
+                            style: TextStyle(
+                              color: Color(0xFF384054),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
       ],
@@ -1053,135 +1303,151 @@ class _SearchPageState extends State<SearchPage> {
     final bool isCompleted =
         activity["spotsLeft"] == 0 && activity["isJoined"] != true;
 
-    final double? lat = activity["lat"] is double ? activity["lat"] as double : null;
-    final double? lng = activity["lng"] is double ? activity["lng"] as double : null;
+    final double? lat =
+        activity["lat"] is double ? activity["lat"] as double : null;
+    final double? lng =
+        activity["lng"] is double ? activity["lng"] as double : null;
 
     final bool isTrackingThis = trackedActivity != null &&
         trackedActivity!["title"]?.toString() == activity["title"]?.toString();
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
-          BoxShadow(
-            color: shadowColor,
-            blurRadius: 10,
-            offset: Offset(0, 3),
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => GroupDetailsPage(group: activity),
           ),
-        ],
-        border: Border.all(
-          color: isTrackingThis ? routeColor : const Color(0xFFE8E8E8),
-          width: isTrackingThis ? 1.4 : 1,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              activity["title"] ?? "",
-              style: const TextStyle(
-                color: titleColor,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              "By ${activity["host"]}",
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 13,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              "📍 ${activity["location"]}",
-              style: const TextStyle(color: Color(0xFF384054)),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              "🕒 ${activity["dayTime"]}",
-              style: const TextStyle(color: Color(0xFF384054)),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              "👥 ${activity["participants"]} participants",
-              style: const TextStyle(color: Color(0xFF384054)),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              "📏 ${_distanceText(lat, lng)}",
-              style: const TextStyle(
-                color: primaryColor,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: isCompleted ? null : () => toggleJoin(activity),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: activity["isJoined"] == true
-                          ? const Color(0xFFE7FAF3)
-                          : isCompleted
-                              ? Colors.grey.shade300
-                              : primaryColor,
-                      foregroundColor: activity["isJoined"] == true
-                          ? primaryColor
-                          : isCompleted
-                              ? Colors.grey.shade700
-                              : Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    child: Text(
-                      activity["isJoined"] == true
-                          ? "Joined"
-                          : isCompleted
-                              ? "Completed"
-                              : "Join (${activity["spotsLeft"]} left)",
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: (lat != null && lng != null)
-                        ? () async {
-                            if (isTrackingThis) {
-                              _stopTracking();
-                            } else {
-                              await _startTracking(activity);
-                            }
-                          }
-                        : null,
-                    icon: Icon(
-                      isTrackingThis ? Icons.close_rounded : Icons.navigation_rounded,
-                      size: 18,
-                    ),
-                    label: Text(isTrackingThis ? "Stop" : "Track"),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: routeColor,
-                      side: const BorderSide(color: routeColor),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: const [
+            BoxShadow(
+              color: shadowColor,
+              blurRadius: 10,
+              offset: Offset(0, 3),
             ),
           ],
+          border: Border.all(
+            color: isTrackingThis ? routeColor : const Color(0xFFE8E8E8),
+            width: isTrackingThis ? 1.4 : 1,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                activity["title"] ?? "",
+                style: const TextStyle(
+                  color: titleColor,
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                "By ${activity["host"]}",
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "📍 ${activity["location"]}",
+                style: const TextStyle(color: Color(0xFF384054)),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "🕒 ${activity["dayTime"]}",
+                style: const TextStyle(color: Color(0xFF384054)),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "👥 ${activity["participants"]} participants",
+                style: const TextStyle(color: Color(0xFF384054)),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "📏 ${_distanceText(lat, lng)}",
+                style: const TextStyle(
+                  color: primaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed:
+                          isCompleted ? null : () => toggleJoin(activity),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: activity["isJoined"] == true
+                            ? const Color(0xFFE7FAF3)
+                            : isCompleted
+                                ? Colors.grey.shade300
+                                : primaryColor,
+                        foregroundColor: activity["isJoined"] == true
+                            ? primaryColor
+                            : isCompleted
+                                ? Colors.grey.shade700
+                                : Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: Text(
+                        activity["isJoined"] == true
+                            ? "Joined"
+                            : isCompleted
+                                ? "Completed"
+                                : "Join (${activity["spotsLeft"]} left)",
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: (lat != null && lng != null)
+                          ? () async {
+                              if (isTrackingThis) {
+                                _stopTracking();
+                              } else {
+                                await _startTracking(activity);
+                              }
+                            }
+                          : null,
+                      icon: Icon(
+                        isTrackingThis
+                            ? Icons.close_rounded
+                            : Icons.navigation_rounded,
+                        size: 18,
+                      ),
+                      label: Text(isTrackingThis ? "Stop" : "Track"),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: routeColor,
+                        side: const BorderSide(color: routeColor),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1297,7 +1563,8 @@ class _SearchPageState extends State<SearchPage> {
                     ],
                     _buildFiltersCard(),
                     const SizedBox(height: 18),
-                    if (!showMapView && !hasSearched) _buildListSectionWithoutSearch(),
+                    if (!showMapView && !hasSearched)
+                      _buildListSectionWithoutSearch(),
                     _buildResultsSection(),
                   ],
                 ),
