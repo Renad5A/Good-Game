@@ -9,7 +9,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // مبدئياً نخليها ثابتة (لاحقاً نربطها بالداتا)
   final String username = "Ahmed";
   final String bioLine = "Sports enthusiast | Always\nlooking for new adventures";
   final List<String> tags = const ["Football", "Running", "Hiking"];
@@ -20,13 +19,11 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushNamed(context, route);
   }
 
-  // تنقل البوتوم ناف حسب التصميم (Home/Groups/Search/Create/Profile)
   void _onNavTap(int i) {
     setState(() => _navIndex = i);
 
     switch (i) {
       case 0:
-        // Home (انتِ فيها)
         break;
       case 1:
         _go(AppRoutes.groups);
@@ -45,382 +42,362 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // ألوان قريبة جداً من الصورة
-    const headerGreen = Color(0xFF0FAE78);
-    const headerGreenDark = Color(0xFF0B9C6C);
+    const Color pageBg = Color(0xFFF3F4F6);
+    const Color darkBlue = Color(0xFF213F73);
+    const Color midBlue = Color(0xFF86B3EE);
+    const Color lightBlue = Color(0xFFAED3EC);
+    const Color cardColor = Color(0xFFF1F5F9);
+    const Color navIconColor = Color(0xFF5A5561);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F8),
-
-      // البودي كامل Scroll
-      body: Stack(
-        children: [
-          // ===== الخلفية الخضراء العلوية (مثل الصورة) =====
-          Container(
-            height: 290,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [headerGreen, headerGreenDark],
-              ),
-            ),
-          ),
-
-          SafeArea(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+      backgroundColor: pageBg,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
               children: [
-                // ===== Top header: Welcome + اسم + ايقونات =====
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // يسار: النص
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Welcome back",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            height: 1.1,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          username,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 34,
-                            fontWeight: FontWeight.w800,
-                            height: 1.0,
-                          ),
-                        ),
-                      ],
+                Container(
+                  height: 470,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(56),
+                      bottomRight: Radius.circular(56),
                     ),
-
-                    // يمين: جرس + شات (مثل الصورة)
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () => _go(AppRoutes.notifications),
-                          icon: const Icon(Icons.notifications_none_outlined),
-                          color: Colors.white,
-                        ),
-                        IconButton(
-                          onPressed: () => _go(AppRoutes.chat),
-                          icon: const Icon(Icons.chat_bubble_outline),
-                          color: Colors.white,
-                        ),
-                      ],
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [midBlue, lightBlue],
                     ),
-                  ],
-                ),
-
-                const SizedBox(height: 18),
-
-                // ===== كرت المستخدم (أبيض كبير) =====
-                _ProfileCard(
-                  username: username,
-                  bioLine: bioLine,
-                  tags: tags,
-                  onTap: () => _go(AppRoutes.profile),
-                ),
-
-                const SizedBox(height: 18),
-
-                // ===== 3 كروت: Groups / Search / Add (بنفس شكل البلوك الملون يسار) =====
-                _ActionCard(
-                  color: const Color(0xFF12B886), // أخضر
-                  icon: Icons.groups_outlined,
-                  title: "Groups",
-                  subtitle: "View joined and created groups",
-                  onTap: () => _go(AppRoutes.groups),
-                ),
-                const SizedBox(height: 12),
-                _ActionCard(
-                  color: const Color(0xFF7C5CFF), // بنفسجي
-                  icon: Icons.search,
-                  title: "Search Activity",
-                  subtitle: "Find activities near you",
-                  onTap: () => _go(AppRoutes.search),
-                ),
-                const SizedBox(height: 12),
-                _ActionCard(
-                  color: const Color(0xFFF59F00), // برتقالي
-                  icon: Icons.add,
-                  title: "Add Activity",
-                  subtitle: "Create a personal activity",
-                  onTap: () => _go(AppRoutes.addActivity),
-                ),
-
-                const SizedBox(height: 22),
-
-                // ===== عنوان Your Activity =====
-                const Text(
-                  "Your Activity",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF111827),
                   ),
                 ),
-
-                const SizedBox(height: 14),
-
-                // ===== كروت إحصائيات بسيطة تحت (مثل الصورة) =====
-                Row(
-                  children: const [
-                    Expanded(
-                      child: _StatCard(
-                        number: "3",
-                        label: "Groups",
-                        accent: Color(0xFF12B886),
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: _StatCard(
-                        number: "1",
-                        label: "Groups",
-                        accent: Color(0xFF7C5CFF),
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: _StatCard(
-                        number: "5",
-                        label: "Activities",
-                        accent: Color(0xFFF59F00),
-                      ),
-                    ),
-                  ],
+                Expanded(
+                  child: Container(color: pageBg),
                 ),
-
-                const SizedBox(height: 90), // مساحة فوق البوتوم ناف
               ],
             ),
-          ),
-        ],
-      ),
 
-      // ===== Bottom Nav مثل الصورة =====
-      bottomNavigationBar: _GGBottomNav(
-        currentIndex: _navIndex,
-        onTap: _onNavTap,
-      ),
-    );
-  }
-}
-
-/// ===== كرت البروفايل الأبيض =====
-class _ProfileCard extends StatelessWidget {
-  final String username;
-  final String bioLine;
-  final List<String> tags;
-  final VoidCallback onTap;
-
-  const _ProfileCard({
-    required this.username,
-    required this.bioLine,
-    required this.tags,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 10,
-      shadowColor: Colors.black12,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // دائرة الحرف
-              Container(
-                width: 58,
-                height: 58,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF12B886), Color(0xFF0FAE78)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+            SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(26, 24, 26, 120),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Welcome\n$username",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 44,
+                            fontWeight: FontWeight.w700,
+                            height: 1.15,
+                          ),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          _topIconButton(
+                            icon: Icons.notifications,
+                            onTap: () => _go(AppRoutes.notifications),
+                          ),
+                          const SizedBox(width: 14),
+                          _topIconButton(
+                            icon: Icons.chat_bubble,
+                            onTap: () => _go(AppRoutes.chat),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 6)),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    username.isNotEmpty ? username[0].toUpperCase() : "U",
-                    style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900),
-                  ),
-                ),
-              ),
 
-              const SizedBox(width: 14),
+                  const SizedBox(height: 30),
 
-              // نصوص + Tags
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      username,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF111827)),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 24,
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      bioLine,
-                      style: const TextStyle(color: Color(0xFF6B7280), height: 1.15),
+                    decoration: BoxDecoration(
+                      color: cardColor.withOpacity(0.92),
+                      borderRadius: BorderRadius.circular(34),
                     ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: tags
-                          .map(
-                            (t) => Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE9F8F2),
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                              child: Text(
-                                t,
-                                style: const TextStyle(
-                                  color: Color(0xFF0FAE78),
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 96,
+                          height: 96,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFF88B5EF),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            username.isNotEmpty ? username[0].toUpperCase() : "A",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 34,
+                              fontWeight: FontWeight.w500,
                             ),
-                          )
-                          .toList(),
+                          ),
+                        ),
+                        const SizedBox(width: 18),
+                        Expanded(
+                          child: Text(
+                            "Sports enthusiast | Always\nlooking for new adventures",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              height: 1.35,
+                              color: darkBlue,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
 
-              const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
+                  const SizedBox(height: 34),
+
+                  const Text(
+                    "Quick Access",
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      color: darkBlue,
+                    ),
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _quickAccessCard(
+                          icon: Icons.groups,
+                          title: "Groups",
+                          onTap: () => _go(AppRoutes.groups),
+                        ),
+                      ),
+                      const SizedBox(width: 18),
+                      Expanded(
+                        child: _quickAccessCard(
+                          icon: Icons.search,
+                          title: "Search",
+                          onTap: () => _go(AppRoutes.search),
+                        ),
+                      ),
+                      const SizedBox(width: 18),
+                      Expanded(
+                        child: _quickAccessCard(
+                          icon: Icons.add_circle,
+                          title: "Activity",
+                          onTap: () => _go(AppRoutes.addActivity),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 34),
+
+                  const Text(
+                    "Your Activity",
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      color: darkBlue,
+                    ),
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  Row(
+                    children: const [
+                      Expanded(
+                        child: _activityStatCard(
+                          number: "3",
+                          label: "Joined",
+                        ),
+                      ),
+                      SizedBox(width: 14),
+                      Expanded(
+                        child: _activityStatCard(
+                          number: "1",
+                          label: "Created",
+                        ),
+                      ),
+                      SizedBox(width: 14),
+                      Expanded(
+                        child: _activityStatCard(
+                          number: "5",
+                          label: "Total",
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        padding: const EdgeInsets.fromLTRB(14, 10, 14, 16),
+        decoration: const BoxDecoration(
+          color: Color(0xFFF6F6F7),
+          border: Border(
+            top: BorderSide(
+              color: Color(0xFFE7E7E8),
+              width: 1,
+            ),
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _bottomItem(
+                icon: Icons.home,
+                label: "Home",
+                selected: _navIndex == 0,
+                color: navIconColor,
+                onTap: () => _onNavTap(0),
+              ),
+              _bottomItem(
+                icon: Icons.groups,
+                label: "Groups",
+                selected: _navIndex == 1,
+                color: navIconColor,
+                onTap: () => _onNavTap(1),
+              ),
+              _bottomItem(
+                icon: Icons.search,
+                label: "Search",
+                selected: _navIndex == 2,
+                color: navIconColor,
+                onTap: () => _onNavTap(2),
+              ),
+              _bottomItem(
+                icon: Icons.add,
+                label: "Create",
+                selected: _navIndex == 3,
+                color: navIconColor,
+                onTap: () => _onNavTap(3),
+              ),
+              _bottomItem(
+                icon: Icons.person,
+                label: "Profile",
+                selected: _navIndex == 4,
+                color: navIconColor,
+                onTap: () => _onNavTap(4),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-}
 
-/// ===== كرت الأكشن (بلوك ملون يسار + كرت أبيض يمين) =====
-class _ActionCard extends StatelessWidget {
-  final Color color;
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _ActionCard({
-    required this.color,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 92,
-      child: Stack(
-        children: [
-          // الكرت الأبيض
-          Positioned.fill(
-            left: 68,
-            child: Card(
-              elevation: 10,
-              shadowColor: Colors.black12,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(18),
-                onTap: onTap,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
-                            const SizedBox(height: 6),
-                            Text(subtitle, style: const TextStyle(color: Color(0xFF6B7280))),
-                          ],
-                        ),
-                      ),
-                      const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // البلوك الملون يسار
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-              width: 86,
-              height: 92,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 6)),
-                ],
-              ),
-              child: Icon(icon, color: Colors.white, size: 34),
-            ),
-          ),
-        ],
+  Widget _topIconButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 62,
+        height: 62,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.22),
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white.withOpacity(0.92),
+          size: 28,
+        ),
       ),
     );
   }
-}
 
-/// ===== كرت الإحصائيات =====
-class _StatCard extends StatelessWidget {
-  final String number;
-  final String label;
-  final Color accent;
-
-  const _StatCard({
-    required this.number,
-    required this.label,
-    required this.accent,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 8,
-      shadowColor: Colors.black12,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 18),
+  Widget _quickAccessCard({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 194,
+        padding: const EdgeInsets.fromLTRB(22, 26, 22, 22),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F7FA).withOpacity(0.72),
+          borderRadius: BorderRadius.circular(30),
+        ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              number,
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: accent),
+            Icon(
+              icon,
+              size: 42,
+              color: const Color(0xFF23457D),
             ),
-            const SizedBox(height: 8),
-            Text(label, style: const TextStyle(color: Color(0xFF6B7280))),
+            const Spacer(),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 19,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF23457D),
+              ),
+            ),
+            const SizedBox(height: 6),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _bottomItem({
+    required IconData icon,
+    required String label,
+    required bool selected,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        width: 68,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 62,
+              height: 44,
+              decoration: BoxDecoration(
+                color: selected ? const Color(0xFFDCEBFA) : Colors.transparent,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                icon,
+                color: color,
+                size: 31,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                color: color,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),
@@ -428,29 +405,45 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-/// ===== Bottom Nav مثل الصورة =====
-class _GGBottomNav extends StatelessWidget {
-  final int currentIndex;
-  final ValueChanged<int> onTap;
+class _activityStatCard extends StatelessWidget {
+  final String number;
+  final String label;
 
-  const _GGBottomNav({
-    required this.currentIndex,
-    required this.onTap,
+  const _activityStatCard({
+    required this.number,
+    required this.label,
   });
 
   @override
   Widget build(BuildContext context) {
-    // نستخدم NavigationBar (Material3) يعطي نفس روح التصميم
-    return NavigationBar(
-      selectedIndex: currentIndex,
-      onDestinationSelected: onTap,
-      destinations: const [
-        NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: "Home"),
-        NavigationDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups), label: "Groups"),
-        NavigationDestination(icon: Icon(Icons.search), selectedIcon: Icon(Icons.search), label: "Search"),
-        NavigationDestination(icon: Icon(Icons.add_circle_outline), selectedIcon: Icon(Icons.add_circle), label: "Create"),
-        NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: "Profile"),
-      ],
+    return Container(
+      height: 112,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F7F8),
+        borderRadius: BorderRadius.circular(26),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            number,
+            style: const TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF23457D),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 15,
+              color: Color(0xFF2F2F35),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
