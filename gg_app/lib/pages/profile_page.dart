@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'skill_level_page.dart';
-import 'edit_profile_page.dart';
+import '../edit_profile_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
