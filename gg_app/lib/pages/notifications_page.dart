@@ -9,26 +9,39 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-
   int _navIndex = 0;
 
-  // بيانات تجريبية مثل الصورة
   final List<_Notif> items = [
-    _Notif("New Member Joined",
-        'Faisal joined your "Evening Running" group',
-        "Feb 17, 10:30 AM", false, Icons.group, Color(0xFFDFF7EE), Color(0xFF10B981)),
-
-    _Notif("Activity Reminder",
-        "Morning Football match tomorrow at 6:00 AM",
-        "Feb 17, 8:00 AM", false, Icons.calendar_today, Color(0xFFFFF3D6), Color(0xFFF59E0B)),
-
-    _Notif("New Message",
-        "Khalid sent you a message",
-        "Feb 16, 3:45 PM", true, Icons.chat_bubble_outline, Color(0xFFE6F0FF), Color(0xFF3B82F6)),
-
-    _Notif("Group Created",
-        'Your "Evening Running" group is now live!',
-        "Feb 15, 12:00 PM", true, Icons.groups, Color(0xFFEDE9FE), Color(0xFF8B5CF6)),
+    _Notif(
+      "New Member Joined",
+      'Faisal joined your "Evening Running" group',
+      "Feb 17, 10:30 AM",
+      false,
+      Icons.group,
+      const Color(0xFFDFF3FF),
+      const Color(0xFF244379),
+      AppRoutes.chat,
+    ),
+    _Notif(
+      "New Message",
+      "Khalid sent you a message",
+      "Feb 16, 3:45 PM",
+      true,
+      Icons.chat_bubble_outline,
+      const Color(0xFFEAF3FF),
+      const Color(0xFF244379),
+      AppRoutes.chat,
+    ),
+    _Notif(
+      "Group Created",
+      'Your "Evening Running" group is now live!',
+      "Feb 15, 12:00 PM",
+      true,
+      Icons.groups,
+      const Color(0xFFDDEEFF),
+      const Color(0xFF244379),
+      AppRoutes.chat,
+    ),
   ];
 
   int get unreadCount => items.where((e) => !e.isRead).length;
@@ -39,6 +52,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
         n.isRead = true;
       }
     });
+  }
+
+  void _openNotification(_Notif n) {
+    setState(() {
+      n.isRead = true;
+    });
+
+    Navigator.pushNamed(context, n.route);
   }
 
   void _onNavTap(int i) {
@@ -65,118 +86,271 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    const Color darkBlue = Color(0xFF244379);
+    const Color pageBg = Color(0xFFF3F5F7);
+    const Color textGrey = Color(0xFF6B7280);
+    const Color navIconColor = Color(0xFF5A5561);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6F7),
-
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: const BackButton(color: Colors.black),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: pageBg,
+      body: SafeArea(
+        child: Stack(
           children: [
-            const Text("Notifications",
-                style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18)),
-            Text("$unreadCount unread",
-                style: const TextStyle(fontSize: 12, color: Colors.grey)),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: markAllRead,
-            child: const Text(
-              "Mark all read",
-              style: TextStyle(
-                  color: Color(0xFF10B981),
-                  fontWeight: FontWeight.bold),
-            ),
-          )
-        ],
-      ),
-
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: items.length,
-        itemBuilder: (context, i) {
-          final n = items[i];
-
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                  color: n.isRead
-                      ? Colors.transparent
-                      : const Color(0xFFBFEFD9),
-                  width: 2),
-              boxShadow: const [
-                BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 8,
-                    offset: Offset(0, 5))
+            Column(
+              children: [
+                Container(
+                  height: 210,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(42),
+                      bottomRight: Radius.circular(42),
+                    ),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF86B2ED),
+                        Color(0xFFA9D2EA),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(color: pageBg),
+                ),
               ],
             ),
-            child: Row(
+            Column(
               children: [
-                // أيقونة دائرية
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: n.bg,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(n.icon, color: n.iconColor),
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
+                  child: Row(
                     children: [
-                      Text(n.title,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      const SizedBox(height: 6),
-                      Text(n.message,
-                          style: const TextStyle(color: Colors.grey)),
-                      const SizedBox(height: 8),
-                      Text(n.date,
-                          style: const TextStyle(
-                              fontSize: 12, color: Colors.grey)),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.22),
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Notifications",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "$unreadCount unread",
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.92),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: markAllRead,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.20),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Text(
+                            "Mark all read",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
+                const SizedBox(height: 24),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
+                    itemCount: items.length,
+                    itemBuilder: (context, i) {
+                      final n = items[i];
 
-                // النقطة الخضراء لغير المقروء
-                if (!n.isRead)
-                  const CircleAvatar(
-                    radius: 5,
-                    backgroundColor: Color(0xFF10B981),
-                  )
+                      return GestureDetector(
+                        onTap: () => _openNotification(n),
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 14),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.80),
+                            borderRadius: BorderRadius.circular(26),
+                            border: Border.all(
+                              color: n.isRead
+                                  ? Colors.transparent
+                                  : const Color(0xFFD7E8FA),
+                              width: 1.5,
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x149AA6B2),
+                                blurRadius: 18,
+                                offset: Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 52,
+                                height: 52,
+                                decoration: BoxDecoration(
+                                  color: n.bg,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  n.icon,
+                                  color: n.iconColor,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            n.title,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 16,
+                                              color: darkBlue,
+                                            ),
+                                          ),
+                                        ),
+                                        if (!n.isRead)
+                                          Container(
+                                            width: 10,
+                                            height: 10,
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFF86B2ED),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      n.message,
+                                      style: const TextStyle(
+                                        color: textGrey,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      n.date,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ],
             ),
-          );
-        },
+          ],
+        ),
       ),
-
-      // 🔥 نفس البوتوم ناف بالضبط
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _navIndex,
-        onDestinationSelected: _onNavTap,
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), label: "Home"),
-          NavigationDestination(icon: Icon(Icons.groups_outlined), label: "Groups"),
-          NavigationDestination(icon: Icon(Icons.search), label: "Search"),
-          NavigationDestination(icon: Icon(Icons.add_circle_outline), label: "Create"),
-          NavigationDestination(icon: Icon(Icons.person_outline), label: "Profile"),
-        ],
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        padding: const EdgeInsets.fromLTRB(14, 10, 14, 16),
+        decoration: const BoxDecoration(
+          color: Color(0xFFF6F6F7),
+          border: Border(
+            top: BorderSide(
+              color: Color(0xFFE7E7E8),
+              width: 1,
+            ),
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _BottomItem(
+                icon: Icons.home,
+                label: "Home",
+                selected: _navIndex == 0,
+                color: navIconColor,
+                onTap: () => _onNavTap(0),
+              ),
+              _BottomItem(
+                icon: Icons.groups,
+                label: "Groups",
+                selected: _navIndex == 1,
+                color: navIconColor,
+                onTap: () => _onNavTap(1),
+              ),
+              _BottomItem(
+                icon: Icons.search,
+                label: "Search",
+                selected: _navIndex == 2,
+                color: navIconColor,
+                onTap: () => _onNavTap(2),
+              ),
+              _BottomItem(
+                icon: Icons.add,
+                label: "Create",
+                selected: _navIndex == 3,
+                color: navIconColor,
+                onTap: () => _onNavTap(3),
+              ),
+              _BottomItem(
+                icon: Icons.person,
+                label: "Profile",
+                selected: _navIndex == 4,
+                color: navIconColor,
+                onTap: () => _onNavTap(4),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -190,7 +364,70 @@ class _Notif {
   final IconData icon;
   final Color bg;
   final Color iconColor;
+  final String route;
 
-  _Notif(this.title, this.message, this.date, this.isRead, this.icon, this.bg,
-      this.iconColor);
+  _Notif(
+    this.title,
+    this.message,
+    this.date,
+    this.isRead,
+    this.icon,
+    this.bg,
+    this.iconColor,
+    this.route,
+  );
+}
+
+class _BottomItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _BottomItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        width: 68,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 62,
+              height: 44,
+              decoration: BoxDecoration(
+                color: selected ? const Color(0xFFDCEBFA) : Colors.transparent,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                icon,
+                color: color,
+                size: 31,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                color: color,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
