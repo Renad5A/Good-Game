@@ -11,6 +11,7 @@ class AppRoutes {
   static const home = 'home';
   static const groups = 'groups';
   static const groupDetails = 'groupDetails';
+  static const String createGroup = "/createGroup";
   static const search = 'search';
   static const addActivity = 'addActivity';
   static const profile = 'profile';
@@ -21,3 +22,4 @@ class AppRoutes {
   static const settings = 'settings';
   static const skillLevel = 'skillLevel';
 }
+
