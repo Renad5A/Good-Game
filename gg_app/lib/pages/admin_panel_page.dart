@@ -36,6 +36,7 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -54,6 +55,16 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
               ),
               title: Text(user['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
               subtitle: Text(user['email']),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+              onTap: () {
+                Navigator.pop(ctx);
+                // تم التعديل هنا: تمرير بيانات اليوزر المختار
+                Navigator.pushNamed(
+                  context, 
+                  '/user_details', 
+                  arguments: user,
+                );
+              },
             ),
             const Divider(),
             ListTile(
@@ -89,6 +100,7 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
     );
   }
 
+  // بقية الدوال (Groups, Delete, Snack) تبقى كما هي
   void _showGroupOptions(BuildContext context, int index) {
     showModalBottomSheet(
       context: context,
@@ -220,9 +232,6 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
     );
   }
 
-  // ══════════════════════════════
-  // TAB 1: USERS
-  // ══════════════════════════════
   Widget _buildUsersTab() {
     return Column(
       children: [
@@ -245,6 +254,12 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
                       ),
                       child: ListTile(
+                        // تم التعديل هنا أيضاً: عند الضغط المباشر على الكارت يتم تمرير البيانات
+                        onTap: () => Navigator.pushNamed(
+                          context, 
+                          '/user_details', 
+                          arguments: user,
+                        ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         leading: CircleAvatar(
                           backgroundColor: _green.withOpacity(0.1),
@@ -293,9 +308,7 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
     );
   }
 
-  // ══════════════════════════════
-  // TAB 2: GROUPS
-  // ══════════════════════════════
+  // دوال بناء التبويبات الأخرى كما هي
   Widget _buildGroupsTab() {
     if (_groups.isEmpty) return const Center(child: Text('No groups found'));
     return ListView.builder(
@@ -364,9 +377,6 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
     );
   }
 
-  // ══════════════════════════════
-  // TAB 3: REPORTS
-  // ══════════════════════════════
   Widget _buildReportsTab() {
     if (_reports.isEmpty) {
       return Center(
@@ -403,7 +413,6 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Header ──
                 Row(
                   children: [
                     Container(
@@ -422,10 +431,8 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                // ── السبب ──
                 Text(report['reason'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                 const SizedBox(height: 6),
-                // ── المبلّغ عنه ──
                 Row(
                   children: [
                     const Icon(Icons.people_outline, size: 14, color: Colors.grey),
@@ -434,7 +441,6 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                   ],
                 ),
                 const SizedBox(height: 4),
-                // ── اسم المبلّغ ──
                 Row(
                   children: [
                     const Icon(Icons.person_outline, size: 14, color: Colors.grey),
@@ -443,7 +449,6 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                // ── الأزرار ──
                 Row(
                   children: [
                     Expanded(
