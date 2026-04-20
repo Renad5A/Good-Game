@@ -51,7 +51,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
   TimeOfDay? selectedTime;
 
   String selectedLevel = 'Beginner';
-  String genderPreference = 'Mixed';
+  String genderPreference = 'Male';
   String activityMode = 'One-time Event';
   String? recurringFrequency;
 
@@ -366,6 +366,13 @@ class _AddActivityPageState extends State<AddActivityPage> {
     if (selectedDate == null || selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select date and time')),
+      );
+      return;
+    }
+
+    if (_googleMapsLinkController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter Google Maps link')),
       );
       return;
     }
@@ -809,7 +816,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
                             DropdownButtonFormField<String>(
                               value: selectedActivityType,
                               dropdownColor: Colors.white,
-                              decoration: _inputDecoration("Select activity type"),
+                              decoration:
+                                  _inputDecoration("Select activity type"),
                               icon: const Icon(
                                 Icons.keyboard_arrow_down_rounded,
                                 color: Colors.grey,
@@ -949,7 +957,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
                             DropdownButtonFormField<String>(
                               value: selectedNeighborhood,
                               dropdownColor: Colors.white,
-                              decoration: _inputDecoration("Select neighborhood"),
+                              decoration:
+                                  _inputDecoration("Select neighborhood"),
                               icon: const Icon(
                                 Icons.keyboard_arrow_down_rounded,
                                 color: Colors.grey,
@@ -979,7 +988,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
                                 Icon(Icons.link, size: 18, color: subtitleColor),
                                 SizedBox(width: 6),
                                 Text(
-                                  "Google Maps Link (optional)",
+                                  "Google Maps Link *",
                                   style: TextStyle(
                                     color: titleColor,
                                     fontSize: 15,
@@ -994,6 +1003,12 @@ class _AddActivityPageState extends State<AddActivityPage> {
                               decoration: _inputDecoration(
                                 "https://maps.google.com/...",
                               ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "Please enter Google Maps link";
+                                }
+                                return null;
+                              },
                             ),
                           ],
                         ),
@@ -1044,62 +1059,70 @@ class _AddActivityPageState extends State<AddActivityPage> {
                               title: "Settings",
                             ),
                             const SizedBox(height: 18),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Fees (optional)",
-                                        style: TextStyle(
-                                          color: titleColor,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      TextFormField(
-                                        controller: _feesController,
-                                        keyboardType: TextInputType.number,
-                                        decoration: _inputDecoration("0").copyWith(
-                                          suffixText: "SAR",
-                                          suffixStyle: const TextStyle(
-                                            color: subtitleColor,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Max participants",
-                                        style: TextStyle(
-                                          color: titleColor,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      TextFormField(
-                                        controller: _maxParticipantsController,
-                                        keyboardType: TextInputType.number,
-                                        decoration: _inputDecoration("20"),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+
+                           Row(
+  children: [
+    Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Max participants *",
+            style: TextStyle(
+              color: titleColor,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextFormField(
+            controller: _maxParticipantsController,
+            keyboardType: TextInputType.number,
+            decoration: _inputDecoration("20"),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return "Required";
+              }
+              final number = int.tryParse(value.trim());
+              if (number == null || number < 2) {
+                return "Min 2";
+              }
+              return null;
+            },
+          ),
+        ],
+      ),
+    ),
+    const SizedBox(width: 12),
+    Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Fees (optional)",
+            style: TextStyle(
+              color: titleColor,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextFormField(
+            controller: _feesController,
+            keyboardType: TextInputType.number,
+            decoration: _inputDecoration("0").copyWith(
+              suffixText: "SAR",
+            ),
+          ),
+        ],
+      ),
+    ),
+  ],
+),
+
                             const SizedBox(height: 18),
                             const Text(
-                              "Gender Preference (optional)",
+                              "Gender Preference *",
                               style: TextStyle(
                                 color: titleColor,
                                 fontSize: 15,
@@ -1109,17 +1132,6 @@ class _AddActivityPageState extends State<AddActivityPage> {
                             const SizedBox(height: 10),
                             Row(
                               children: [
-                                _buildOptionCard(
-                                  title: "Mixed",
-                                  icon: Icons.groups_2_outlined,
-                                  selected: genderPreference == "Mixed",
-                                  onTap: () {
-                                    setState(() {
-                                      genderPreference = "Mixed";
-                                    });
-                                  },
-                                ),
-                                const SizedBox(width: 12),
                                 _buildOptionCard(
                                   title: "Male",
                                   emoji: "👨",
@@ -1143,6 +1155,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
                                 ),
                               ],
                             ),
+
                             const SizedBox(height: 18),
                             const Text(
                               "Activity Type",
@@ -1157,7 +1170,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
                               children: [
                                 _buildOptionCard(
                                   title: "One-time Event",
-                                  selected: activityMode == "One-time Event",
+                                  selected:
+                                      activityMode == "One-time Event",
                                   onTap: () {
                                     setState(() {
                                       activityMode = "One-time Event";
@@ -1168,7 +1182,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
                                 const SizedBox(width: 12),
                                 _buildOptionCard(
                                   title: "Recurring Group",
-                                  selected: activityMode == "Recurring Group",
+                                  selected:
+                                      activityMode == "Recurring Group",
                                   onTap: () {
                                     setState(() {
                                       activityMode = "Recurring Group";
@@ -1177,6 +1192,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
                                 ),
                               ],
                             ),
+
                             if (activityMode == "Recurring Group") ...[
                               const SizedBox(height: 18),
                               const Text(
@@ -1209,6 +1225,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
                                 },
                               ),
                             ],
+
                             const SizedBox(height: 22),
                             SizedBox(
                               width: double.infinity,
@@ -1217,8 +1234,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: primaryColor,
                                   elevation: 0,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 18),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 18),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),
