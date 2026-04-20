@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import '../core/app_routes.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String accountType;
+
+  const HomePage({
+    super.key,
+    required this.accountType,
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -10,8 +15,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final String username = "Ahmed";
-  final String bioLine = "Sports enthusiast | Always\nlooking for new adventures";
-  final List<String> tags = const ["Football", "Running", "Hiking"];
+  final String organizationName = "Fit Club";
 
   int _navIndex = 0;
 
@@ -49,6 +53,16 @@ class _HomePageState extends State<HomePage> {
     const Color cardColor = Color(0xFFF1F5F9);
     const Color navIconColor = Color(0xFF5A5561);
 
+    final bool isOrganization = widget.accountType == 'organization';
+
+    final String displayName = isOrganization ? organizationName : username;
+    final String bioLine = isOrganization
+        ? "Create activities | Manage members\nand grow your community"
+        : "Sports enthusiast | Always\nlooking for new adventures";
+
+    final String activityTitle =
+        isOrganization ? "Organization Activity" : "Your Activity";
+
     return Scaffold(
       backgroundColor: pageBg,
       body: SafeArea(
@@ -76,7 +90,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-
             SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(26, 24, 26, 120),
               child: Column(
@@ -86,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Expanded(
                         child: Text(
-                          "Welcome\n$username",
+                          "Welcome\n$displayName",
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 44,
@@ -110,9 +123,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 30),
-
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
@@ -134,7 +145,9 @@ class _HomePageState extends State<HomePage> {
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            username.isNotEmpty ? username[0].toUpperCase() : "A",
+                            displayName.isNotEmpty
+                                ? displayName[0].toUpperCase()
+                                : "A",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 34,
@@ -145,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(width: 18),
                         Expanded(
                           child: Text(
-                            "Sports enthusiast | Always\nlooking for new adventures",
+                            bioLine,
                             style: const TextStyle(
                               fontSize: 18,
                               height: 1.35,
@@ -157,9 +170,7 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 34),
-
                   const Text(
                     "Quick Access",
                     style: TextStyle(
@@ -168,73 +179,112 @@ class _HomePageState extends State<HomePage> {
                       color: darkBlue,
                     ),
                   ),
-
                   const SizedBox(height: 22),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _quickAccessCard(
-                          icon: Icons.groups,
-                          title: "Groups",
-                          onTap: () => _go(AppRoutes.groups),
+                  isOrganization
+                      ? Row(
+                          children: [
+                            Expanded(
+                              child: _quickAccessCard(
+                                icon: Icons.groups,
+                                title: "Groups",
+                                onTap: () => _go(AppRoutes.groups),
+                              ),
+                            ),
+                            const SizedBox(width: 18),
+                            Expanded(
+                              child: _quickAccessCard(
+                                icon: Icons.add_circle,
+                                title: "Activity",
+                                onTap: () => _go(AppRoutes.addActivity),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Expanded(
+                              child: _quickAccessCard(
+                                icon: Icons.groups,
+                                title: "Groups",
+                                onTap: () => _go(AppRoutes.groups),
+                              ),
+                            ),
+                            const SizedBox(width: 18),
+                            Expanded(
+                              child: _quickAccessCard(
+                                icon: Icons.search,
+                                title: "Search",
+                                onTap: () => _go(AppRoutes.search),
+                              ),
+                            ),
+                            const SizedBox(width: 18),
+                            Expanded(
+                              child: _quickAccessCard(
+                                icon: Icons.add_circle,
+                                title: "Activity",
+                                onTap: () => _go(AppRoutes.addActivity),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(width: 18),
-                      Expanded(
-                        child: _quickAccessCard(
-                          icon: Icons.search,
-                          title: "Search",
-                          onTap: () => _go(AppRoutes.search),
-                        ),
-                      ),
-                      const SizedBox(width: 18),
-                      Expanded(
-                        child: _quickAccessCard(
-                          icon: Icons.add_circle,
-                          title: "Activity",
-                          onTap: () => _go(AppRoutes.addActivity),
-                        ),
-                      ),
-                    ],
-                  ),
 
                   const SizedBox(height: 34),
-
-                  const Text(
-                    "Your Activity",
-                    style: TextStyle(
+                  Text(
+                    activityTitle,
+                    style: const TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
                       color: darkBlue,
                     ),
                   ),
-
                   const SizedBox(height: 22),
-
                   Row(
-                    children: const [
-                      Expanded(
-                        child: _activityStatCard(
-                          number: "3",
-                          label: "Joined",
-                        ),
-                      ),
-                      SizedBox(width: 14),
-                      Expanded(
-                        child: _activityStatCard(
-                          number: "1",
-                          label: "Created",
-                        ),
-                      ),
-                      SizedBox(width: 14),
-                      Expanded(
-                        child: _activityStatCard(
-                          number: "5",
-                          label: "Total",
-                        ),
-                      ),
-                    ],
+                    children: isOrganization
+                        ? const [
+                            Expanded(
+                              child: _activityStatCard(
+                                number: "8",
+                                label: "Events",
+                              ),
+                            ),
+                            SizedBox(width: 14),
+                            Expanded(
+                              child: _activityStatCard(
+                                number: "24",
+                                label: "Members",
+                              ),
+                            ),
+                            SizedBox(width: 14),
+                            Expanded(
+                              child: _activityStatCard(
+                                number: "12",
+                                label: "Requests",
+                              ),
+                            ),
+                          ]
+                        : const [
+                            Expanded(
+                              child: _activityStatCard(
+                                number: "3",
+                                label: "Joined",
+                              ),
+                            ),
+                            SizedBox(width: 14),
+                            Expanded(
+                              child: _activityStatCard(
+                                number: "1",
+                                label: "Created",
+                              ),
+                            ),
+                            SizedBox(width: 14),
+                            Expanded(
+                              child: _activityStatCard(
+                                number: "5",
+                                label: "Total",
+                              ),
+                            ),
+                          ],
                   ),
                 ],
               ),
@@ -243,7 +293,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       bottomNavigationBar: Container(
-        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 16),
         decoration: const BoxDecoration(
           color: Color(0xFFF6F6F7),
