@@ -6,7 +6,7 @@ class HomePage extends StatefulWidget {
 
   const HomePage({
     super.key,
-    required this.accountType,
+    this.accountType = 'player',
   });
 
   @override
@@ -180,7 +180,6 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   const SizedBox(height: 22),
-
                   isOrganization
                       ? Row(
                           children: [
@@ -228,7 +227,6 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ],
                         ),
-
                   const SizedBox(height: 34),
                   Text(
                     activityTitle,

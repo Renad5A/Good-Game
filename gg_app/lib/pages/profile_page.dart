@@ -4,12 +4,17 @@ import 'edit_profile_page.dart';
 import 'home_page.dart';
 import 'groups_page.dart';
 import 'search_page.dart';
-import 'add_activity_page.dart'; // ✏️ إضافة جديدة: استيراد صفحة الإنشاء
+import 'add_activity_page.dart';
 import 'settings_page.dart';
 import 'admin_panel_page.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  final String accountType;
+
+  const ProfilePage({
+    super.key,
+    this.accountType = 'player',
+  });
 
   static const Color bgDark = Color(0xFF0F1214);
   static const Color surfaceDark = Color(0xFF1A1F23);
@@ -18,6 +23,8 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isOrganization = accountType == 'organization';
+
     return Scaffold(
       backgroundColor: bgDark,
       bottomNavigationBar: Theme(
@@ -32,7 +39,9 @@ class ProfilePage extends StatelessWidget {
             if (index == 0) {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const HomePage()),
+                MaterialPageRoute(
+                  builder: (context) => HomePage(accountType: accountType),
+                ),
               );
             } else if (index == 1) {
               Navigator.pushReplacement(
@@ -45,7 +54,6 @@ class ProfilePage extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const SearchPage()),
               );
             } else if (index == 3) {
-              // ✏️ تعديل: الانتقال لصفحة Create بدل السيرش
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const AddActivityPage()),
@@ -53,11 +61,26 @@ class ProfilePage extends StatelessWidget {
             }
           },
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.group_outlined), label: 'Groups'),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-            BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: 'Create'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.group_outlined),
+              label: 'Groups',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.search),
+              label: 'Search',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add_circle_outline),
+              label: 'Create',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+            ),
           ],
         ),
       ),
@@ -90,11 +113,16 @@ class ProfilePage extends StatelessWidget {
                             onPressed: () => Navigator.pop(context),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.settings_outlined, color: textMain),
+                            icon: const Icon(
+                              Icons.settings_outlined,
+                              color: textMain,
+                            ),
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const SettingsPage()),
+                                MaterialPageRoute(
+                                  builder: (context) => const SettingsPage(),
+                                ),
                               );
                             },
                           ),
@@ -111,8 +139,13 @@ class ProfilePage extends StatelessWidget {
                     child: CircleAvatar(
                       radius: 48,
                       backgroundColor: surfaceDark,
-                      child: const Text('A',
-                        style: TextStyle(fontSize: 40, color: accentGold, fontWeight: FontWeight.bold)
+                      child: Text(
+                        isOrganization ? 'F' : 'A',
+                        style: const TextStyle(
+                          fontSize: 40,
+                          color: accentGold,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -120,28 +153,65 @@ class ProfilePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 65),
-            const Text('Ahmed',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1)
+            Text(
+              isOrganization ? 'Fit Club' : 'Ahmed',
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                letterSpacing: 1,
+              ),
             ),
-            const Text('Member', style: TextStyle(color: accentGold, fontWeight: FontWeight.w500)),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            Text(
+              isOrganization ? 'Organization' : 'Member',
+              style: const TextStyle(
+                color: accentGold,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               child: Text(
-                'Sports enthusiast | Always looking for new adventures. Love meeting new people and staying active!',
+                isOrganization
+                    ? 'Create activities, manage members, and grow your sports community with ease.'
+                    : 'Sports enthusiast | Always looking for new adventures. Love meeting new people and staying active!',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
+                  height: 1.5,
+                ),
               ),
             ),
             const SizedBox(height: 10),
-            _buildActionButtons(context),
+            _buildActionButtons(context, isOrganization),
             const SizedBox(height: 25),
             _buildSectionHeader('Favorite Activities'),
-            _buildActivityChips(),
-            _buildSectionHeader('Joined Groups (2)'),
-            _buildGroupCard('Morning Football', 'by Khalid', '2/12', 'Football'),
-            _buildGroupCard('Weekend Hikers', 'by Sara', '3/8', 'Hiking'),
-            _buildSectionHeader('Created Groups (1)'),
-            _buildGroupCard('Evening Running', 'by Ahmed (You)', '2/10', 'Running'),
+            _buildActivityChips(isOrganization),
+            _buildSectionHeader(
+              isOrganization ? 'Managed Groups (2)' : 'Joined Groups (2)',
+            ),
+            _buildGroupCard(
+              isOrganization ? 'Football League' : 'Morning Football',
+              isOrganization ? 'by Fit Club' : 'by Khalid',
+              isOrganization ? '8/20' : '2/12',
+              'Football',
+            ),
+            _buildGroupCard(
+              isOrganization ? 'Mountain Hikers' : 'Weekend Hikers',
+              isOrganization ? 'by Fit Club' : 'by Sara',
+              isOrganization ? '5/15' : '3/8',
+              'Hiking',
+            ),
+            _buildSectionHeader(
+              isOrganization ? 'Created Activities (1)' : 'Created Groups (1)',
+            ),
+            _buildGroupCard(
+              isOrganization ? 'Community Run' : 'Evening Running',
+              isOrganization ? 'by Fit Club' : 'by Ahmed (You)',
+              isOrganization ? '12/30' : '2/10',
+              'Running',
+            ),
             const SizedBox(height: 30),
           ],
         ),
@@ -149,7 +219,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(BuildContext context, bool isOrganization) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -157,16 +227,29 @@ class ProfilePage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _customButton(Icons.edit_outlined, 'Edit Profile', () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfilePage()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const EditProfilePage(),
+              ),
+            );
           }),
           const SizedBox(width: 8),
           _customButton(Icons.emoji_events_outlined, 'Skill Level', () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const SkillLevelPage()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SkillLevelPage()),
+            );
           }),
-          const SizedBox(width: 8),
-          _customButton(Icons.admin_panel_settings_outlined, 'Admin', () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPanelPage()));
-          }),
+          if (isOrganization) ...[
+            const SizedBox(width: 8),
+            _customButton(Icons.admin_panel_settings_outlined, 'Admin', () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AdminPanelPage()),
+              );
+            }),
+          ],
         ],
       ),
     );
@@ -176,7 +259,14 @@ class ProfilePage extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: onTap,
       icon: Icon(icon, size: 16, color: Colors.black),
-      label: Text(label, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12)),
+      label: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+        ),
+      ),
       style: ElevatedButton.styleFrom(
         backgroundColor: accentGold,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -191,24 +281,36 @@ class ProfilePage extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 25, 20, 12),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Text(title,
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: accentGold, letterSpacing: 0.5)
-        )
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
+            color: accentGold,
+            letterSpacing: 0.5,
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildActivityChips() {
+  Widget _buildActivityChips(bool isOrganization) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Wrap(
         spacing: 10,
         runSpacing: 10,
-        children: [
-          _activityChip('Football • Intermediate'),
-          _activityChip('Running • Beginner'),
-          _activityChip('Hiking'),
-        ],
+        children: isOrganization
+            ? [
+                _activityChip('Football'),
+                _activityChip('Running'),
+                _activityChip('Hiking'),
+              ]
+            : [
+                _activityChip('Football • Intermediate'),
+                _activityChip('Running • Beginner'),
+                _activityChip('Hiking'),
+              ],
       ),
     );
   }
@@ -221,7 +323,10 @@ class ProfilePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: accentGold.withOpacity(0.3)),
       ),
-      child: Text(label, style: const TextStyle(color: textMain, fontSize: 12)),
+      child: Text(
+        label,
+        style: const TextStyle(color: textMain, fontSize: 12),
+      ),
     );
   }
 
@@ -234,18 +339,38 @@ class ProfilePage extends StatelessWidget {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-        title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        subtitle: Text(creator, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+        title: Text(
+          name,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(
+          creator,
+          style: const TextStyle(color: Colors.white38, fontSize: 13),
+        ),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(tag, style: const TextStyle(color: accentGold, fontSize: 12, fontWeight: FontWeight.w600)),
+            Text(
+              tag,
+              style: const TextStyle(
+                color: accentGold,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 4),
-            Text(count, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            Text(
+              count,
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            ),
           ],
         ),
       ),
     );
   }
 }
+

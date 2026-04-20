@@ -19,7 +19,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   String _accountType = 'regular';
 
-  // ───────── USER ─────────
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -65,7 +64,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final _otherActivityController = TextEditingController();
   bool _otherSelected = false;
 
-  // ───────── ORGANIZATION ─────────
   final _orgNameController = TextEditingController();
   final _orgEmailController = TextEditingController();
   final _orgPhoneController = TextEditingController();
@@ -92,7 +90,6 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  // ───────────────────────── NAV ─────────────────────────
   void _nextStep() {
     if (_currentStep == 0) {
       setState(() => _currentStep++);
@@ -100,9 +97,10 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     if (_currentStep == 1) {
-      final isValid = _accountType == 'regular'
-          ? _validateUser()
-          : _validateOrganization();
+      final isValid =
+          _accountType == 'regular'
+              ? _validateUser()
+              : _validateOrganization();
 
       if (!isValid) return;
 
@@ -127,11 +125,17 @@ class _RegisterPageState extends State<RegisterPage> {
   void _skip() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const HomePage()),
+      MaterialPageRoute(
+        builder: (_) => HomePage(
+          accountType:
+              _accountType == 'organization'
+                  ? 'organization'
+                  : 'player',
+        ),
+      ),
     );
   }
 
-  // ───────────────────────── VALIDATION ─────────────────────────
   bool _validateUser() {
     final username = _usernameController.text.trim();
     final email = _emailController.text.trim();
@@ -146,25 +150,32 @@ class _RegisterPageState extends State<RegisterPage> {
       _age = today.year - _birthdate!.year;
 
       if (today.month < _birthdate!.month ||
-          (today.month == _birthdate!.month && today.day < _birthdate!.day)) {
+          (today.month == _birthdate!.month &&
+              today.day < _birthdate!.day)) {
         _age = _age! - 1;
       }
     }
 
     final ageValid = _age != null && _age! >= 18;
 
-    if (username.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty) {
+    if (username.isEmpty ||
+        email.isEmpty ||
+        phone.isEmpty ||
+        password.isEmpty) {
       _error('Please fill all required fields');
       return false;
     }
+
     if (!usernameValid) {
       _error('Username must contain English letters, numbers, or _ only');
       return false;
     }
+
     if (!emailValid) {
       _error('Enter a valid email');
       return false;
     }
+
     if (!ageValid) {
       _error('You must be 18+');
       return false;
@@ -181,7 +192,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
     final emailValid = RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email);
 
-    if (name.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty) {
+    if (name.isEmpty ||
+        email.isEmpty ||
+        phone.isEmpty ||
+        password.isEmpty) {
       _error('Please fill all required fields');
       return false;
     }
@@ -205,7 +219,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // ───────────────────────── UI ─────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -244,7 +257,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // ───────────────────────── HEADER ─────────────────────────
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
@@ -359,7 +371,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // ───────────────────────── STEP 1 ─────────────────────────
   Widget _step1() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -403,7 +414,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // ───────────────────────── USER STEP 2 ─────────────────────────
   Widget _userStep2() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -456,7 +466,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // ───────────────────────── USER STEP 3 ─────────────────────────
   Widget _userStep3() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -570,7 +579,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // ───────────────────────── ORG STEP 2 ─────────────────────────
   Widget _orgStep2() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -619,7 +627,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // ───────────────────────── ORG STEP 3 ─────────────────────────
   Widget _orgStep3() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -657,7 +664,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // ───────────────────────── COMPONENTS ─────────────────────────
   Widget _circleIconButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -797,7 +803,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.white12),
+          borderSide: const BorderSide(color: Colors.white12),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -994,3 +1000,4 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 }
+
