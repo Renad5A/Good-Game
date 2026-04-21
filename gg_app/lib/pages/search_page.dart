@@ -1362,8 +1362,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildResultCard(Map<String, dynamic> activity) {
-    final bool isCompleted =
-        activity["spotsLeft"] == 0 && activity["isJoined"] != true;
+   final bool isCompleted = activity["spotsLeft"] == 0;
 
     final double? lat =
         activity["lat"] is double ? activity["lat"] as double : null;
@@ -1375,14 +1374,26 @@ class _SearchPageState extends State<SearchPage> {
 
     return InkWell(
       borderRadius: BorderRadius.circular(18),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => GroupDetailsPage(group: activity),
-          ),
-        );
-      },
+     onTap: () {
+  final Map<String, dynamic> groupData = {
+    ...activity,
+    "groupName": activity["title"] ?? "Group",
+    "activityName": activity["title"] ?? "Group",
+    "activityType": activity["activityPlain"] ?? "Activity",
+    "time": activity["dayTime"] ?? activity["time"] ?? "-",
+    "isJoined": activity["isJoined"] == true,
+    "isCompleted": activity["spotsLeft"] == 0,
+    "status": activity["spotsLeft"] == 0 ? "Completed" : "Open",
+    "membersCount": activity["participants"] ?? 0,
+  };
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => GroupDetailsPage(group: groupData),
+    ),
+  );
+},
       child: Container(
         margin: const EdgeInsets.only(bottom: 14),
         decoration: BoxDecoration(
