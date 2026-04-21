@@ -4,17 +4,17 @@ import 'edit_profile_page.dart';
 import 'home_page.dart';
 import 'groups_page.dart';
 import 'search_page.dart';
-import 'add_activity_page.dart'; // ✏️ إضافة جديدة: استيراد صفحة الإنشاء
+import 'add_activity_page.dart';
 import 'settings_page.dart';
 import 'admin_panel_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
-  static const Color bgDark = Color(0xFF0F1214);
-  static const Color surfaceDark = Color(0xFF1A1F23);
-  static const Color accentGold = Color(0xFFD4AF37);
-  static const Color textMain = Color(0xFFE0E0E0);
+  static const Color bgDark = Color(0xFFF5F7F9);
+  static const Color surfaceDark = Color(0xFFFFFFFF);
+  static const Color accentGold = Color(0xFF19C58B);
+  static const Color textMain = Color(0xFF1D2939);
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class ProfilePage extends StatelessWidget {
           currentIndex: 4,
           type: BottomNavigationBarType.fixed,
           selectedItemColor: accentGold,
-          unselectedItemColor: Colors.white38,
+          unselectedItemColor: const Color(0xFF98A2B3),
           showUnselectedLabels: true,
           onTap: (index) {
             if (index == 0) {
@@ -45,7 +45,6 @@ class ProfilePage extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const SearchPage()),
               );
             } else if (index == 3) {
-              // ✏️ تعديل: الانتقال لصفحة Create بدل السيرش
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const AddActivityPage()),
@@ -75,7 +74,7 @@ class ProfilePage extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Color(0xFF2C2C2C), surfaceDark],
+                      colors: [Color(0xFF19C58B), Color(0xFF119E6A)],
                     ),
                   ),
                   child: SafeArea(
@@ -86,11 +85,11 @@ class ProfilePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.arrow_back, color: textMain),
+                            icon: const Icon(Icons.arrow_back, color: Colors.white),
                             onPressed: () => Navigator.pop(context),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.settings_outlined, color: textMain),
+                            icon: const Icon(Icons.settings_outlined, color: Colors.white),
                             onPressed: () {
                               Navigator.push(
                                 context,
@@ -111,8 +110,13 @@ class ProfilePage extends StatelessWidget {
                     child: CircleAvatar(
                       radius: 48,
                       backgroundColor: surfaceDark,
-                      child: const Text('A',
-                        style: TextStyle(fontSize: 40, color: accentGold, fontWeight: FontWeight.bold)
+                      child: const Text(
+                        'A',
+                        style: TextStyle(
+                          fontSize: 40,
+                          color: accentGold,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -120,16 +124,32 @@ class ProfilePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 65),
-            const Text('Ahmed',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1)
+            const Text(
+              'Ahmed',
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: textMain,
+                letterSpacing: 1,
+              ),
             ),
-            const Text('Member', style: TextStyle(color: accentGold, fontWeight: FontWeight.w500)),
+            const Text(
+              'Member',
+              style: TextStyle(
+                color: Color(0xFF19C58B),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               child: Text(
                 'Sports enthusiast | Always looking for new adventures. Love meeting new people and staying active!',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
+                style: TextStyle(
+                  color: Color(0xFF667085),
+                  fontSize: 14,
+                  height: 1.5,
+                ),
               ),
             ),
             const SizedBox(height: 10),
@@ -175,8 +195,15 @@ class ProfilePage extends StatelessWidget {
   Widget _customButton(IconData icon, String label, VoidCallback onTap) {
     return ElevatedButton.icon(
       onPressed: onTap,
-      icon: Icon(icon, size: 16, color: Colors.black),
-      label: Text(label, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12)),
+      icon: Icon(icon, size: 16, color: Colors.white),
+      label: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+        ),
+      ),
       style: ElevatedButton.styleFrom(
         backgroundColor: accentGold,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -191,9 +218,15 @@ class ProfilePage extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 25, 20, 12),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Text(title,
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: accentGold, letterSpacing: 0.5)
-        )
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF167C5A),
+            letterSpacing: 0.5,
+          ),
+        ),
       ),
     );
   }
@@ -217,11 +250,18 @@ class ProfilePage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: surfaceDark,
+        color: const Color(0xFFE8F7F1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: accentGold.withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFF19C58B).withOpacity(0.35)),
       ),
-      child: Text(label, style: const TextStyle(color: textMain, fontSize: 12)),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Color(0xFF344054),
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 
@@ -231,18 +271,50 @@ class ProfilePage extends StatelessWidget {
       decoration: BoxDecoration(
         color: surfaceDark,
         borderRadius: BorderRadius.circular(15),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-        title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        subtitle: Text(creator, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+        title: Text(
+          name,
+          style: const TextStyle(
+            color: Color(0xFF1D2939),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(
+          creator,
+          style: const TextStyle(
+            color: Color(0xFF667085),
+            fontSize: 13,
+          ),
+        ),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(tag, style: const TextStyle(color: accentGold, fontSize: 12, fontWeight: FontWeight.w600)),
+            Text(
+              tag,
+              style: const TextStyle(
+                color: Color(0xFF19C58B),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 4),
-            Text(count, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            Text(
+              count,
+              style: const TextStyle(
+                color: Color(0xFF667085),
+                fontSize: 12,
+              ),
+            ),
           ],
         ),
       ),
