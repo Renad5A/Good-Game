@@ -12,10 +12,10 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   int _currentStep = 0;
 
-  static const Color _primaryGreen = Color(0xFF3E6B5A);
-  static const Color _lightGreen = Color(0xFF24332D);
-  static const Color _bgColor = Color(0xFF121816);
-  static const Color _textDark = Color(0xFFF4F7F5);
+  static const Color _primaryGreen = Color(0xFF19C58B);
+  static const Color _lightGreen = Color(0xFFE8F7F1);
+  static const Color _bgColor = Color(0xFFF5F7F9);
+  static const Color _textDark = Color(0xFF1D2939);
 
   String _accountType = 'regular';
 
@@ -262,7 +262,7 @@ class _RegisterPageState extends State<RegisterPage> {
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF2E4A3F), Color(0xFF1B2923)],
+          colors: [Color(0xFF19C58B), Color(0xFF119E6A)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -357,11 +357,11 @@ class _RegisterPageState extends State<RegisterPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A221F),
+        color: const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.28),
+            color: Colors.black.withOpacity(0.08),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -388,7 +388,7 @@ class _RegisterPageState extends State<RegisterPage> {
           'You can register as a regular user or as an organization.',
           style: TextStyle(
             fontSize: 14,
-            color: Colors.white70,
+            color: Color(0xFF667085),
           ),
         ),
         const SizedBox(height: 24),
@@ -533,11 +533,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   }
                 });
               },
-              backgroundColor: const Color(0xFF24302B),
+              backgroundColor: const Color(0xFFFFFFFF),
               selectedColor: _primaryGreen,
               checkmarkColor: Colors.white,
               side: BorderSide(
-                color: selected ? _primaryGreen : Colors.white12,
+                color: selected ? _primaryGreen : const Color(0xFFD0D5DD),
               ),
             );
           }),
@@ -720,10 +720,10 @@ class _RegisterPageState extends State<RegisterPage> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: selected ? _lightGreen : const Color(0xFF1F2925),
+          color: selected ? _lightGreen : const Color(0xFFFFFFFF),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected ? _primaryGreen : Colors.white12,
+            color: selected ? _primaryGreen : const Color(0xFFD0D5DD),
             width: 1.5,
           ),
         ),
@@ -733,12 +733,12 @@ class _RegisterPageState extends State<RegisterPage> {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: selected ? _primaryGreen : const Color(0xFF2A3531),
+                color: selected ? _primaryGreen : const Color(0xFFE8F7F1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
                 icon,
-                color: Colors.white,
+                color: selected ? Colors.white : _primaryGreen,
               ),
             ),
             const SizedBox(width: 14),
@@ -759,7 +759,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     subtitle,
                     style: const TextStyle(
                       fontSize: 13,
-                      color: Colors.white70,
+                      color: Color(0xFF667085),
                     ),
                   ),
                 ],
@@ -769,7 +769,7 @@ class _RegisterPageState extends State<RegisterPage> {
               selected
                   ? Icons.radio_button_checked
                   : Icons.radio_button_off,
-              color: selected ? _primaryGreen : Colors.white54,
+              color: selected ? _primaryGreen : const Color(0xFF98A2B3),
             ),
           ],
         ),
@@ -793,21 +793,21 @@ class _RegisterPageState extends State<RegisterPage> {
       style: const TextStyle(color: _textDark),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.white70),
+        labelStyle: const TextStyle(color: Color(0xFF667085)),
         prefixIcon: Icon(icon, color: _primaryGreen),
         filled: true,
-        fillColor: const Color(0xFF24302B),
+        fillColor: const Color(0xFFFFFFFF),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.white12),
+          borderSide: const BorderSide(color: Color(0xFFD0D5DD)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.white12),
+          borderSide: const BorderSide(color: Color(0xFFD0D5DD)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -824,9 +824,9 @@ class _RegisterPageState extends State<RegisterPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFF24302B),
+          color: const Color(0xFFFFFFFF),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white12),
+          border: Border.all(color: const Color(0xFFD0D5DD)),
         ),
         child: Row(
           children: [
@@ -839,7 +839,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     : '${_birthdate!.day}/${_birthdate!.month}/${_birthdate!.year}',
                 style: TextStyle(
                   fontSize: 15,
-                  color: _birthdate == null ? Colors.white70 : _textDark,
+                  color: _birthdate == null
+                      ? const Color(0xFF667085)
+                      : _textDark,
                 ),
               ),
             ),
@@ -881,17 +883,17 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(
-                    color: selected ? _lightGreen : const Color(0xFF1F2925),
+                    color: selected ? _lightGreen : const Color(0xFFFFFFFF),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: selected ? _primaryGreen : Colors.white12,
+                      color: selected ? _primaryGreen : const Color(0xFFD0D5DD),
                     ),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     g,
                     style: TextStyle(
-                      color: selected ? const Color(0xFFB7E4D3) : _textDark,
+                      color: selected ? _primaryGreen : _textDark,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -976,7 +978,7 @@ class _RegisterPageState extends State<RegisterPage> {
           Expanded(
             child: Text(
               value.isEmpty ? '-' : value,
-              style: const TextStyle(color: Colors.white70),
+              style: const TextStyle(color: Color(0xFF667085)),
             ),
           ),
         ],
@@ -1000,4 +1002,3 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 }
-
