@@ -18,8 +18,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
       "Feb 17, 10:30 AM",
       false,
       Icons.group,
-      const Color(0xFFDFF3FF),
-      const Color(0xFF244379),
+      const Color(0xFFE8F7F1),
+      const Color(0xFF167C5A),
       AppRoutes.chat,
     ),
     _Notif(
@@ -28,8 +28,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
       "Feb 16, 3:45 PM",
       true,
       Icons.chat_bubble_outline,
-      const Color(0xFFEAF3FF),
-      const Color(0xFF244379),
+      const Color(0xFFEFF8F3),
+      const Color(0xFF167C5A),
       AppRoutes.chat,
     ),
     _Notif(
@@ -38,8 +38,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
       "Feb 15, 12:00 PM",
       true,
       Icons.groups,
-      const Color(0xFFDDEEFF),
-      const Color(0xFF244379),
+      const Color(0xFFE8F7F1),
+      const Color(0xFF167C5A),
       AppRoutes.chat,
     ),
   ];
@@ -86,10 +86,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    const Color darkBlue = Color(0xFF244379);
-    const Color pageBg = Color(0xFFF3F5F7);
-    const Color textGrey = Color(0xFF6B7280);
-    const Color navIconColor = Color(0xFF5A5561);
+    const Color darkBlue = Color(0xFF1D2939);
+    const Color pageBg = Color(0xFFF5F7F9);
+    const Color textGrey = Color(0xFF667085);
+    const Color navIconColor = Color(0xFF667085);
 
     return Scaffold(
       backgroundColor: pageBg,
@@ -110,8 +110,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0xFF86B2ED),
-                        Color(0xFFA9D2EA),
+                        Color(0xFF19C58B),
+                        Color(0xFF119E6A),
                       ],
                     ),
                   ),
@@ -210,7 +210,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             border: Border.all(
                               color: n.isRead
                                   ? Colors.transparent
-                                  : const Color(0xFFD7E8FA),
+                                  : const Color(0xFFB7E8D4),
                               width: 1.5,
                             ),
                             boxShadow: const [
@@ -259,7 +259,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                             width: 10,
                                             height: 10,
                                             decoration: const BoxDecoration(
-                                              color: Color(0xFF86B2ED),
+                                              color: Color(0xFF19C58B),
                                               shape: BoxShape.circle,
                                             ),
                                           ),
@@ -300,7 +300,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 16),
         decoration: const BoxDecoration(
-          color: Color(0xFFF6F6F7),
+          color: Color(0xFFF5F7F9),
           border: Border(
             top: BorderSide(
               color: Color(0xFFE7E7E8),
@@ -406,7 +406,7 @@ class _BottomItem extends StatelessWidget {
               width: 62,
               height: 44,
               decoration: BoxDecoration(
-                color: selected ? const Color(0xFFDCEBFA) : Colors.transparent,
+                color: selected ? const Color(0xFFE8F7F1) : Colors.transparent,
                 borderRadius: BorderRadius.circular(24),
               ),
               alignment: Alignment.center,
