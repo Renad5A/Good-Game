@@ -16,9 +16,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    const Color darkBlue = Color(0xFF244379);
-    const Color pageBg = Color(0xFFF3F5F7);
-    const Color textGrey = Color(0xFF6B7280);
+    const Color mainGreen = Color(0xFF19C58B);
+    const Color darkGreen = Color(0xFF167C5A);
+    const Color lightGreen = Color(0xFFE8F7F1);
+    const Color pageBg = Color(0xFFF5F7F9);
+    const Color textGrey = Color(0xFF667085);
+    const Color titleDark = Color(0xFF1D2939);
 
     return Scaffold(
       backgroundColor: pageBg,
@@ -39,8 +42,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0xFF86B2ED),
-                        Color(0xFFA9D2EA),
+                        mainGreen,
+                        darkGreen,
                       ],
                     ),
                   ),
@@ -100,6 +103,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           icon: Icons.badge_outlined,
                           title: "Account Type",
                           subtitle: accountType,
+                          color: darkGreen,
                         ),
                       ),
                       const SizedBox(height: 18),
@@ -108,13 +112,13 @@ class _SettingsPageState extends State<SettingsPage> {
                         child: SwitchListTile(
                           secondary: const Icon(
                             Icons.verified_user_outlined,
-                            color: darkBlue,
+                            color: darkGreen,
                           ),
                           title: const Text(
                             "MFA (Two-Factor Authentication)",
                             style: TextStyle(
                               fontWeight: FontWeight.w800,
-                              color: darkBlue,
+                              color: titleDark,
                             ),
                           ),
                           subtitle: Text(
@@ -123,6 +127,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                 : "Login without authentication",
                             style: const TextStyle(color: textGrey),
                           ),
+                          activeColor: mainGreen,
+                          activeTrackColor: const Color(0xFFB7E8D4),
                           value: mfaEnabled,
                           onChanged: (v) {
                             setState(() => mfaEnabled = v);
@@ -135,13 +141,13 @@ class _SettingsPageState extends State<SettingsPage> {
                         child: SwitchListTile(
                           secondary: const Icon(
                             Icons.notifications_outlined,
-                            color: darkBlue,
+                            color: darkGreen,
                           ),
                           title: const Text(
                             "Push notifications",
                             style: TextStyle(
                               fontWeight: FontWeight.w800,
-                              color: darkBlue,
+                              color: titleDark,
                             ),
                           ),
                           subtitle: Text(
@@ -150,6 +156,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                 : "Notifications OFF",
                             style: const TextStyle(color: textGrey),
                           ),
+                          activeColor: mainGreen,
+                          activeTrackColor: const Color(0xFFB7E8D4),
                           value: pushNotifications,
                           onChanged: (v) {
                             setState(() => pushNotifications = v);
@@ -204,7 +212,7 @@ class _SettingsPageState extends State<SettingsPage> {
         style: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w900,
-          color: Color(0xFF6B7280),
+          color: Color(0xFF667085),
         ),
       ),
     );
@@ -214,11 +222,11 @@ class _SettingsPageState extends State<SettingsPage> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.80),
+        color: Colors.white.withOpacity(0.96),
         borderRadius: BorderRadius.circular(26),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x149AA6B2),
+            color: Color(0x14000000),
             blurRadius: 18,
             offset: Offset(0, 8),
           ),
@@ -232,7 +240,7 @@ class _SettingsPageState extends State<SettingsPage> {
     required IconData icon,
     required String title,
     required String subtitle,
-    Color color = const Color(0xFF244379),
+    Color color = const Color(0xFF167C5A),
     VoidCallback? onTap,
   }) {
     return ListTile(
@@ -241,12 +249,12 @@ class _SettingsPageState extends State<SettingsPage> {
         title,
         style: TextStyle(
           fontWeight: FontWeight.w800,
-          color: color,
+          color: color == Colors.red ? Colors.red : const Color(0xFF1D2939),
         ),
       ),
       subtitle: Text(
         subtitle,
-        style: const TextStyle(color: Color(0xFF6B7280)),
+        style: const TextStyle(color: Color(0xFF667085)),
       ),
       onTap: onTap,
     );
