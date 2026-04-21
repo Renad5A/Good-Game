@@ -21,7 +21,18 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   void initState() {
     super.initState();
     _g = widget.group;
-    _isJoined = _readBool("isJoined", fallback: false);
+
+    // ✅ FIX JOIN STATE (بدل السطر القديم)
+    if (_g is Map) {
+      _isJoined = _g["isJoined"] == true;
+    } else {
+      try {
+        _isJoined = (_g.isJoined == true);
+      } catch (_) {
+        _isJoined = false;
+      }
+    }
+
     _members = _readMembers();
     _joinRequests = _readJoinRequests();
     _membersCount = _readInt("membersCount", fallback: _members.length);
@@ -32,6 +43,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       if (_g is Map) return (_g[key] == true);
       final d = _g as dynamic;
       if (key == "isJoined") return (d.isJoined == true);
+      if (key == "isCompleted") return (d.isCompleted == true);
     } catch (_) {}
     return fallback;
   }
@@ -73,6 +85,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         switch (key) {
           case "groupName":
             return (d.groupName ?? fallback).toString();
+          case "name":
+            return (d.name ?? fallback).toString();
+          case "title":
+            return (d.title ?? fallback).toString();
+          case "activityName":
+            return (d.activityName ?? fallback).toString();
           case "activityType":
             return (d.activityType ?? fallback).toString();
           case "location":
@@ -87,6 +105,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             return (d.riskLevel ?? fallback).toString();
           case "description":
             return (d.description ?? fallback).toString();
+          case "status":
+            return (d.status ?? fallback).toString();
         }
       }
     } catch (_) {}
@@ -132,23 +152,29 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   Color _levelColor(String level) {
     switch (level.toLowerCase()) {
       case "advanced 🔥":
-        return const Color(0xFFE53935);
+        return const Color(0xFFE57373);
       case "intermediate ⚡️":
-        return const Color(0xFFF9A825);
+        return const Color(0xFFFFB74D);
       default:
-        return const Color(0xFF2E7D32);
+        return const Color(0xFF66BB6A);
     }
   }
 
-  IconData _levelIcon(String level) {
+  String _levelEmoji(String level) {
     switch (level.toLowerCase()) {
       case "advanced 🔥":
-        return Icons.local_fire_department_rounded;
+        return "🔥";
       case "intermediate ⚡️":
-        return Icons.flash_on_rounded;
+        return "⚡️";
       default:
-        return Icons.eco_rounded;
+        return "🌱";
     }
+  }
+
+  String _levelText(String level) {
+    if (level.toLowerCase().contains("advanced")) return "Advanced";
+    if (level.toLowerCase().contains("intermediate")) return "Intermediate";
+    return "Beginner";
   }
 
   String _fullEventMessage({
@@ -277,12 +303,22 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    const Color pageBg = Color(0xFFF3F4F6);
-    const Color darkBlue = Color(0xFF213F73);
-    const Color midBlue = Color(0xFF86B3EE);
-    const Color lightBlue = Color(0xFFAED3EC);
+    const Color pageBg = Color(0xFFF5F7F9);
+    const Color darkBlue = Color(0xFF1D2939);
+    const Color midBlue = Color(0xFF19C58B);
+    const Color lightBlue = Color(0xFF119E6A);
 
-    final name = _readString("groupName", fallback: "Group");
+    final name = _readString(
+      "groupName",
+      fallback: _readString(
+        "name",
+        fallback: _readString(
+          "activityName",
+          fallback: _readString("title", fallback: "Group"),
+        ),
+      ),
+    );
+
     final activity = _readString("activityType", fallback: "Activity");
     final location = _readString("location", fallback: "-");
     final date = _readString("date", fallback: "-");
@@ -296,6 +332,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     final maxParticipants = _readInt("maxParticipants", fallback: 0);
     final isOwner = _readIsOwner();
     final levelColor = _levelColor(level);
+
+    final status = _readString("status", fallback: "");
+    final bool isCompleted = status.toLowerCase() == "completed" ||
+        _readBool("isCompleted", fallback: false);
 
     return Scaffold(
       backgroundColor: pageBg,
@@ -368,19 +408,19 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         children: [
                           _Pill(
                             text: activity,
-                            bg: const Color(0xFFDDEBFB),
-                            fg: darkBlue,
+                            bg: const Color(0xFFE8F7F1),
+                            fg: const Color(0xFF167C5A),
                           ),
                           _Pill(
-                            text: "Level: $level",
+                            text: "Level: ${_levelText(level)}",
                             bg: levelColor.withOpacity(0.15),
                             fg: levelColor,
-                            icon: _levelIcon(level),
+                            emoji: _levelEmoji(level),
                           ),
                           _Pill(
                             text: "$_membersCount/$maxParticipants",
-                            bg: const Color(0xFFEAF4FF),
-                            fg: darkBlue,
+                            bg: const Color(0xFFE8F7F1),
+                            fg: const Color(0xFF167C5A),
                             icon: Icons.groups_2_outlined,
                           ),
                         ],
@@ -399,14 +439,14 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                           const Icon(
                             Icons.person_outline_rounded,
                             size: 18,
-                            color: Colors.black45,
+                            color: Color(0xFF98A2B3),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               "Created by $creator",
                               style: const TextStyle(
-                                color: darkBlue,
+                                color: Color(0xFF667085),
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -419,6 +459,9 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                               size: 18,
                             ),
                             label: const Text("View Creator Profile"),
+                            style: TextButton.styleFrom(
+                              foregroundColor: const Color(0xFF167C5A),
+                            ),
                           ),
                         ],
                       ),
@@ -451,7 +494,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         ),
                         style: const TextStyle(
                           height: 1.45,
-                          color: darkBlue,
+                          color: Color(0xFF667085),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -477,7 +520,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                           const Text(
                             "No pending requests.",
                             style: TextStyle(
-                              color: darkBlue,
+                              color: Color(0xFF667085),
                               fontWeight: FontWeight.w600,
                             ),
                           )
@@ -492,18 +535,18 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                                 margin: const EdgeInsets.only(bottom: 12),
                                 padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF6FAFF),
+                                  color: const Color(0xFFEFF8F3),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Row(
                                   children: [
                                     CircleAvatar(
-                                      backgroundColor: const Color(0xFFDDEBFB),
+                                      backgroundColor: const Color(0xFFE8F7F1),
                                       child: Text(
                                         initial,
                                         style: const TextStyle(
                                           fontWeight: FontWeight.w800,
-                                          color: darkBlue,
+                                          color: Color(0xFF167C5A),
                                         ),
                                       ),
                                     ),
@@ -520,6 +563,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                                     ),
                                     TextButton(
                                       onPressed: () => _rejectRequest(user),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor:
+                                            const Color(0xFF667085),
+                                      ),
                                       child: const Text("Reject"),
                                     ),
                                     const SizedBox(width: 6),
@@ -527,10 +574,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                                       onPressed: () => _acceptRequest(user),
                                       style: ElevatedButton.styleFrom(
                                         elevation: 0,
-                                        backgroundColor: const Color(0xFF86B3EE),
+                                        backgroundColor:
+                                            const Color(0xFF19C58B),
                                         foregroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius:
+                                              BorderRadius.circular(16),
                                         ),
                                       ),
                                       child: const Text("Accept"),
@@ -562,7 +611,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         const Text(
                           "No members yet.",
                           style: TextStyle(
-                            color: darkBlue,
+                            color: Color(0xFF667085),
                             fontWeight: FontWeight.w600,
                           ),
                         )
@@ -576,11 +625,11 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             return ListTile(
                               contentPadding: EdgeInsets.zero,
                               leading: CircleAvatar(
-                                backgroundColor: const Color(0xFFDDEBFB),
+                                backgroundColor: const Color(0xFFE8F7F1),
                                 child: Text(
                                   initial,
                                   style: const TextStyle(
-                                    color: darkBlue,
+                                    color: Color(0xFF167C5A),
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
@@ -594,7 +643,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                               ),
                               subtitle: const Text(
                                 "Member",
-                                style: TextStyle(fontWeight: FontWeight.w500),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF667085),
+                                ),
                               ),
                             );
                           }).toList(),
@@ -607,14 +659,21 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: _toggleJoin,
+                        onPressed: isCompleted ? null : _toggleJoin,
                         style: ElevatedButton.styleFrom(
                           elevation: 0,
-                          backgroundColor: _isJoined
-                              ? const Color(0xFFDDEBFB)
-                              : const Color(0xFF86B3EE),
-                          foregroundColor:
-                              _isJoined ? darkBlue : Colors.white,
+                          backgroundColor: isCompleted
+                              ? const Color(0xFFE8F7F1)
+                              : _isJoined
+                                  ? const Color(0xFFFFE5E5)
+                                  : const Color(0xFF19C58B),
+                          foregroundColor: isCompleted
+                              ? const Color(0xFF167C5A)
+                              : _isJoined
+                                  ? const Color(0xFFE53935)
+                                  : Colors.white,
+                          disabledBackgroundColor: const Color(0xFFE8F7F1),
+                          disabledForegroundColor: const Color(0xFF167C5A),
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(22),
@@ -624,7 +683,13 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             fontSize: 16,
                           ),
                         ),
-                        child: Text(_isJoined ? "Joined (Tap to Leave)" : "Join"),
+                        child: Text(
+                          isCompleted
+                              ? "Completed"
+                              : _isJoined
+                                  ? "Leave"
+                                  : "Join",
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -643,8 +708,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         icon: const Icon(Icons.forum_outlined),
                         label: const Text("Group Chat"),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: darkBlue,
-                          side: const BorderSide(color: Color(0xFFBFD5F4)),
+                          foregroundColor: const Color(0xFF167C5A),
+                          side: const BorderSide(color: Color(0xFFB7E8D4)),
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(22),
@@ -709,13 +774,13 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   Widget _infoRow(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFF213F73), size: 22),
+        Icon(icon, color: const Color(0xFF98A2B3), size: 22),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             text,
             style: const TextStyle(
-              color: Color(0xFF213F73),
+              color: Color(0xFF667085),
               fontWeight: FontWeight.w600,
               fontSize: 16,
             ),
@@ -731,12 +796,14 @@ class _Pill extends StatelessWidget {
   final Color bg;
   final Color fg;
   final IconData? icon;
+  final String? emoji;
 
   const _Pill({
     required this.text,
     required this.bg,
     required this.fg,
     this.icon,
+    this.emoji,
   });
 
   @override
@@ -750,14 +817,21 @@ class _Pill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[
-            Icon(icon, size: 16, color: fg),
-            const SizedBox(width: 6),
-          ],
           Text(
             text,
             style: TextStyle(color: fg, fontWeight: FontWeight.w700),
           ),
+          if (emoji != null) ...[
+            const SizedBox(width: 6),
+            Text(
+              emoji!,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
+          if (icon != null) ...[
+            const SizedBox(width: 6),
+            Icon(icon, size: 16, color: fg),
+          ],
         ],
       ),
     );
