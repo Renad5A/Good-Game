@@ -9,11 +9,10 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class EditProfilePageState extends State<EditProfilePage> {
-  // لوحة ألوان فخمة (Premium Dark Palette)
-  static const Color bgDark = Color(0xFF0F1214);      // خلفية عميقة
-  static const Color surfaceDark = Color(0xFF1A1F23); // لون الحقول والبطاقات
-  static const Color accentGold = Color(0xFFD4AF37);  // ذهبي مطفأ للأيقونات والتفاعل
-  static const Color textMain = Color(0xFFE0E0E0);    // نص أبيض ناعم
+  static const Color bgDark = Color(0xFFF5F7F9);
+  static const Color surfaceDark = Color(0xFFFFFFFF);
+  static const Color accentGold = Color(0xFF19C58B);
+  static const Color textMain = Color(0xFF1D2939);
 
   final TextEditingController _nameController = TextEditingController(text: "Ahmed");
   final TextEditingController _usernameController = TextEditingController(text: "ggg");
@@ -23,9 +22,9 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   DateTime? _selectedDate;
   final List<String> _activities = [
-    '⚽ Football', '🏀 Basketball', '🏊 Swimming', 
-    '🏃 Running', '📚 Reading', '🎮 Gaming', 
-    '📷 Photography', '✈️ Traveling', '🍳 Cooking', 
+    '⚽ Football', '🏀 Basketball', '🏊 Swimming',
+    '🏃 Running', '📚 Reading', '🎮 Gaming',
+    '📷 Photography', '✈️ Traveling', '🍳 Cooking',
     '🎵 Music', '🎨 Drawing'
   ];
   final List<String> _selectedActivities = ['⚽ Football', '🎮 Gaming'];
@@ -36,10 +35,17 @@ class EditProfilePageState extends State<EditProfilePage> {
     return Scaffold(
       backgroundColor: bgDark,
       appBar: AppBar(
-        title: const Text("Edit Profile", style: TextStyle(color: textMain, fontWeight: FontWeight.w600)),
+        title: const Text(
+          "Edit Profile",
+          style: TextStyle(
+            color: textMain,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
+        iconTheme: const IconThemeData(color: textMain),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
@@ -48,7 +54,7 @@ class EditProfilePageState extends State<EditProfilePage> {
           children: [
             _sectionTitle("Personal Information"),
             const SizedBox(height: 20),
-            
+
             _buildInputField(_nameController, "Full Name", Icons.person_outline),
             _buildInputField(_usernameController, "Username", Icons.alternate_email),
             _buildInputField(_emailController, "Email", Icons.mail_outline),
@@ -66,7 +72,7 @@ class EditProfilePageState extends State<EditProfilePage> {
 
             const SizedBox(height: 15),
             _buildOtherActivityToggle(),
-            
+
             if (_showOtherActivityField)
               Padding(
                 padding: const EdgeInsets.only(top: 15),
@@ -82,33 +88,47 @@ class EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  // ويدجت عنوان القسم
   Widget _sectionTitle(String title) {
-    return Text(title, style: const TextStyle(color: accentGold, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5));
+    return Text(
+      title,
+      style: const TextStyle(
+        color: Color(0xFF167C5A),
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0.5,
+      ),
+    );
   }
 
-  // تصميم الحقول المرتب
   Widget _buildInputField(TextEditingController controller, String label, IconData icon) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 18),
       child: TextField(
         controller: controller,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: Color(0xFF1D2939)),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: Colors.white38, fontSize: 14),
+          labelStyle: const TextStyle(
+            color: Color(0xFF667085),
+            fontSize: 14,
+          ),
           prefixIcon: Icon(icon, color: accentGold, size: 22),
           filled: true,
           fillColor: surfaceDark,
-          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: accentGold, width: 1)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE4E7EC)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: accentGold, width: 1),
+          ),
           contentPadding: const EdgeInsets.symmetric(vertical: 18),
         ),
       ),
     );
   }
 
-  // تصميم اختيار التاريخ
   Widget _buildDatePicker() {
     return InkWell(
       onTap: () async {
@@ -122,14 +142,24 @@ class EditProfilePageState extends State<EditProfilePage> {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-        decoration: BoxDecoration(color: surfaceDark, borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(
+          color: surfaceDark,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE4E7EC)),
+        ),
         child: Row(
           children: [
             const Icon(Icons.calendar_today_outlined, color: accentGold, size: 20),
             const SizedBox(width: 15),
             Text(
-              _selectedDate == null ? "Select your birthdate" : DateFormat('yyyy - MM - dd').format(_selectedDate!),
-              style: TextStyle(color: _selectedDate == null ? Colors.white38 : Colors.white),
+              _selectedDate == null
+                  ? "Select your birthdate"
+                  : DateFormat('yyyy - MM - dd').format(_selectedDate!),
+              style: TextStyle(
+                color: _selectedDate == null
+                    ? const Color(0xFF98A2B3)
+                    : const Color(0xFF1D2939),
+              ),
             ),
           ],
         ),
@@ -137,7 +167,6 @@ class EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  // تصميم الهوايات (Chips)
   Widget _buildActivitiesWrap() {
     return Wrap(
       spacing: 8,
@@ -145,15 +174,26 @@ class EditProfilePageState extends State<EditProfilePage> {
       children: _activities.map((activity) {
         bool selected = _selectedActivities.contains(activity);
         return FilterChip(
-          label: Text(activity, style: TextStyle(color: selected ? Colors.black : textMain, fontSize: 13)),
+          label: Text(
+            activity,
+            style: TextStyle(
+              color: selected ? Colors.white : textMain,
+              fontSize: 13,
+            ),
+          ),
           selected: selected,
           onSelected: (bool val) {
-            setState(() { val ? _selectedActivities.add(activity) : _selectedActivities.remove(activity); });
+            setState(() {
+              val ? _selectedActivities.add(activity) : _selectedActivities.remove(activity);
+            });
           },
           backgroundColor: surfaceDark,
           selectedColor: accentGold,
-          checkmarkColor: Colors.black,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          checkmarkColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: const BorderSide(color: Color(0xFFD0D5DD)),
+          ),
           showCheckmark: false,
         );
       }).toList(),
@@ -164,34 +204,54 @@ class EditProfilePageState extends State<EditProfilePage> {
     return Row(
       children: [
         SizedBox(
-          height: 24, width: 24,
+          height: 24,
+          width: 24,
           child: Checkbox(
             value: _showOtherActivityField,
             activeColor: accentGold,
-            checkColor: Colors.black,
+            checkColor: Colors.white,
             onChanged: (val) => setState(() => _showOtherActivityField = val!),
             side: const BorderSide(color: accentGold),
           ),
         ),
         const SizedBox(width: 10),
-        const Text("I have other activities", style: TextStyle(color: textMain, fontSize: 14)),
+        const Text(
+          "I have other activities",
+          style: TextStyle(
+            color: textMain,
+            fontSize: 14,
+          ),
+        ),
       ],
     );
   }
 
-  // زر الحفظ الفخم
   Widget _buildSaveButton() {
     return Container(
       width: double.infinity,
       height: 55,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        gradient: const LinearGradient(colors: [accentGold, Color(0xFFB8860B)]), // تدرج ذهبي
+        gradient: const LinearGradient(
+          colors: [accentGold, Color(0xFF119E6A)],
+        ),
       ),
       child: ElevatedButton(
         onPressed: () {},
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-        child: const Text("SAVE CHANGES", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1)),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        child: const Text(
+          "SAVE CHANGES",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            letterSpacing: 1,
+          ),
+        ),
       ),
     );
   }
