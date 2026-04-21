@@ -100,32 +100,38 @@ class _GroupsPageState extends State<GroupsPage> {
   Color _levelColor(String level) {
     switch (level.toLowerCase()) {
       case "advanced 🔥":
-        return const Color(0xFFE53935);
+        return const Color(0xFFE57373); // أحمر فاتح
       case "intermediate ⚡️":
-        return const Color(0xFFF9A825);
+        return const Color(0xFFFFB74D); // برتقالي فاتح
       default:
-        return const Color(0xFF2E7D32);
+        return const Color(0xFF66BB6A); // أخضر فاتح
     }
   }
 
-  IconData _levelIcon(String level) {
+  String _levelEmoji(String level) {
     switch (level.toLowerCase()) {
       case "advanced 🔥":
-        return Icons.local_fire_department_rounded;
+        return "🔥";
       case "intermediate ⚡️":
-        return Icons.flash_on_rounded;
+        return "⚡️";
       default:
-        return Icons.eco_rounded;
+        return "🌱";
     }
+  }
+
+  String _levelText(String level) {
+    if (level.toLowerCase().contains("advanced")) return "Advanced";
+    if (level.toLowerCase().contains("intermediate")) return "Intermediate";
+    return "Beginner";
   }
 
   @override
   Widget build(BuildContext context) {
-    const Color pageBg = Color(0xFFF3F4F6);
-    const Color darkBlue = Color(0xFF213F73);
-    const Color midBlue = Color(0xFF86B3EE);
-    const Color lightBlue = Color(0xFFAED3EC);
-    const Color cardColor = Color(0xFFF1F5F9);
+    const Color pageBg = Color(0xFFF5F7F9);
+    const Color darkBlue = Color(0xFF1D2939);
+    const Color midBlue = Color(0xFF19C58B);
+    const Color lightBlue = Color(0xFF119E6A);
+    const Color cardColor = Color(0xFFFFFFFF);
 
     final List<Group> list = (_tabIndex == 0) ? joined : created;
 
@@ -229,7 +235,7 @@ class _GroupsPageState extends State<GroupsPage> {
                           margin: const EdgeInsets.only(bottom: 18),
                           padding: const EdgeInsets.all(22),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.88),
+                            color: Colors.white.withOpacity(0.95),
                             borderRadius: BorderRadius.circular(30),
                             boxShadow: const [
                               BoxShadow(
@@ -260,13 +266,13 @@ class _GroupsPageState extends State<GroupsPage> {
                                       vertical: 8,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFDDEBFB),
+                                      color: const Color(0xFFE8F7F1),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Text(
                                       g.activity,
                                       style: const TextStyle(
-                                        color: darkBlue,
+                                        color: Color(0xFF167C5A),
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
@@ -287,42 +293,45 @@ class _GroupsPageState extends State<GroupsPage> {
                                   const Icon(
                                     Icons.person_outline_rounded,
                                     size: 18,
-                                    color: Colors.black45,
+                                    color: Color(0xFF98A2B3),
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       "by ${g.creator}",
                                       style: const TextStyle(
-                                        color: darkBlue,
+                                        color: Color(0xFF667085),
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
                                   ),
-                                  Icon(
-                                    _levelIcon(g.level),
-                                    size: 18,
-                                    color: levelColor,
-                                  ),
-                                  const SizedBox(width: 6),
                                   Text(
-                                    g.level,
+                                    _levelText(g.level),
                                     style: TextStyle(
                                       color: levelColor,
                                       fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _levelEmoji(g.level),
+                                    style: TextStyle(
+                                      color: levelColor,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 16,
                                     ),
                                   ),
                                   const SizedBox(width: 14),
                                   const Icon(
                                     Icons.groups_2_outlined,
                                     size: 18,
-                                    color: darkBlue,
+                                    color: Color(0xFF19C58B),
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
                                     "${g.members.length}/${g.maxParticipants}",
                                     style: const TextStyle(
-                                      color: darkBlue,
+                                      color: Color(0xFF19C58B),
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
@@ -336,13 +345,13 @@ class _GroupsPageState extends State<GroupsPage> {
                                     vertical: 10,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFEAF4FF),
+                                    color: const Color(0xFFE8F7F1),
                                     borderRadius: BorderRadius.circular(18),
                                   ),
                                   child: Text(
                                     "Pending requests: ${g.joinRequests.length}",
                                     style: const TextStyle(
-                                      color: darkBlue,
+                                      color: Color(0xFF167C5A),
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -393,7 +402,7 @@ class _GroupsPageState extends State<GroupsPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFFDDEBFB) : Colors.transparent,
+          color: selected ? const Color(0xFFE8F7F1) : Colors.transparent,
           borderRadius: BorderRadius.circular(22),
         ),
         child: Text(
@@ -401,7 +410,7 @@ class _GroupsPageState extends State<GroupsPage> {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontWeight: FontWeight.w800,
-            color: selected ? const Color(0xFF213F73) : Colors.black54,
+            color: selected ? const Color(0xFF167C5A) : const Color(0xFF667085),
           ),
         ),
       ),
@@ -412,13 +421,13 @@ class _GroupsPageState extends State<GroupsPage> {
     return Row(
       children: [
         const SizedBox(width: 2),
-        Icon(icon, size: 20, color: Color(0xFF213F73)),
+        Icon(icon, size: 20, color: const Color(0xFF98A2B3)),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             text,
             style: const TextStyle(
-              color: Color(0xFF213F73),
+              color: Color(0xFF667085),
               fontWeight: FontWeight.w600,
               fontSize: 16,
             ),
