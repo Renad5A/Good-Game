@@ -8,7 +8,7 @@ class AdminPanelPage extends StatefulWidget {
 }
 
 class _AdminPanelPageState extends State<AdminPanelPage> {
-  static const Color _green = Color(0xFF1B9B7E);
+  static const Color _green = Color(0xFF19C58B);
 
   final List<Map<String, dynamic>> _users = [
     {'name': 'Ahmed', 'email': 'ahmed@email.com', 'role': 'admin', 'status': 'active'},
@@ -44,7 +44,8 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 40, height: 4,
+              width: 40,
+              height: 4,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
             ),
@@ -58,10 +59,9 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),
               onTap: () {
                 Navigator.pop(ctx);
-                // تم التعديل هنا: تمرير بيانات اليوزر المختار
                 Navigator.pushNamed(
-                  context, 
-                  '/user_details', 
+                  context,
+                  '/user_details',
                   arguments: user,
                 );
               },
@@ -77,8 +77,10 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
               },
             ),
             ListTile(
-              leading: Icon(isSuspended ? Icons.check_circle : Icons.block,
-                  color: isSuspended ? _green : Colors.orange),
+              leading: Icon(
+                isSuspended ? Icons.check_circle : Icons.block,
+                color: isSuspended ? _green : Colors.orange,
+              ),
               title: Text(isSuspended ? 'Unsuspend User' : 'Suspend User'),
               onTap: () {
                 setState(() => _users[index]['status'] = isSuspended ? 'active' : 'suspended');
@@ -100,7 +102,6 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
     );
   }
 
-  // بقية الدوال (Groups, Delete, Snack) تبقى كما هي
   void _showGroupOptions(BuildContext context, int index) {
     showModalBottomSheet(
       context: context,
@@ -111,12 +112,13 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 40, height: 4,
+              width: 40,
+              height: 4,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
             ),
             ListTile(
-              leading: const Icon(Icons.star_outline, color: Color(0xFF1B9B7E)),
+              leading: const Icon(Icons.star_outline, color: Color(0xFF19C58B)),
               title: const Text('Feature Group'),
               onTap: () {
                 Navigator.pop(ctx);
@@ -148,7 +150,10 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            onPressed: () { Navigator.pop(ctx); onConfirm(); },
+            onPressed: () {
+              Navigator.pop(ctx);
+              onConfirm();
+            },
             child: const Text('Delete'),
           ),
         ],
@@ -158,7 +163,11 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
 
   void _showSnack(BuildContext context, String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating, backgroundColor: _green),
+      SnackBar(
+        content: Text(msg),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: _green,
+      ),
     );
   }
 
@@ -167,7 +176,7 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F5F5),
+        backgroundColor: const Color(0xFFF5F7F9),
         appBar: AppBar(
           backgroundColor: _green,
           foregroundColor: Colors.white,
@@ -218,13 +227,22 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           children: [
             Icon(icon, color: color, size: 28),
             const SizedBox(height: 8),
-            Text(count, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
+            Text(
+              count,
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color),
+            ),
             Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
           ],
         ),
@@ -251,19 +269,23 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8),
+                        ],
                       ),
                       child: ListTile(
-                        // تم التعديل هنا أيضاً: عند الضغط المباشر على الكارت يتم تمرير البيانات
                         onTap: () => Navigator.pushNamed(
-                          context, 
-                          '/user_details', 
+                          context,
+                          '/user_details',
                           arguments: user,
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         leading: CircleAvatar(
                           backgroundColor: _green.withOpacity(0.1),
-                          child: Text(user['name'][0], style: const TextStyle(color: _green, fontWeight: FontWeight.bold)),
+                          child: Text(
+                            user['name'][0],
+                            style: const TextStyle(color: _green, fontWeight: FontWeight.bold),
+                          ),
                         ),
                         title: Row(
                           children: [
@@ -272,8 +294,14 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                             if (isAdmin)
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(color: _green.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
-                                child: const Text('Admin', style: TextStyle(fontSize: 10, color: _green, fontWeight: FontWeight.bold)),
+                                decoration: BoxDecoration(
+                                  color: _green.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Text(
+                                  'Admin',
+                                  style: TextStyle(fontSize: 10, color: _green, fontWeight: FontWeight.bold),
+                                ),
                               ),
                           ],
                         ),
@@ -285,12 +313,18 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                color: isSuspended ? Colors.red.withOpacity(0.1) : Colors.green.withOpacity(0.1),
+                                color: isSuspended
+                                    ? Colors.red.withOpacity(0.1)
+                                    : _green.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
                                 isSuspended ? 'Suspended' : 'Active',
-                                style: TextStyle(fontSize: 11, color: isSuspended ? Colors.red : Colors.green, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isSuspended ? Colors.red : _green,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ],
@@ -308,7 +342,6 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
     );
   }
 
-  // دوال بناء التبويبات الأخرى كما هي
   Widget _buildGroupsTab() {
     if (_groups.isEmpty) return const Center(child: Text('No groups found'));
     return ListView.builder(
@@ -326,13 +359,19 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8),
+            ],
           ),
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             leading: Container(
-              width: 48, height: 48,
-              decoration: BoxDecoration(color: _green.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: _green.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: const Icon(Icons.group_outlined, color: _green),
             ),
             title: Text(group['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -352,17 +391,26 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: _green.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+                      decoration: BoxDecoration(
+                        color: _green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                       child: Text(group['type'], style: const TextStyle(fontSize: 11, color: _green)),
                     ),
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: riskColor.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+                      decoration: BoxDecoration(
+                        color: riskColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                       child: Text('${group['risk']} Risk', style: TextStyle(fontSize: 11, color: riskColor)),
                     ),
                     const Spacer(),
-                    Text(group['members'], style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _green)),
+                    Text(
+                      group['members'],
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _green),
+                    ),
                   ],
                 ),
               ],
@@ -405,7 +453,9 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8),
+            ],
             border: Border.all(color: Colors.red.withOpacity(0.1)),
           ),
           child: Padding(
@@ -417,12 +467,22 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       child: Row(
                         children: [
                           const Icon(Icons.flag, color: Colors.red, size: 14),
                           const SizedBox(width: 4),
-                          Text(report['targetType'], style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold)),
+                          Text(
+                            report['targetType'],
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                     ),
